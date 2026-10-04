@@ -1,0 +1,53 @@
+/* =========================================================
+   CIMIENTO — Tokens de diseño
+   Paleta derivada del logo oficial: azul marino profundo
+   (confianza, formación) + dorado cálido (la corona, luz).
+   Fondo cálido casi blanco, nunca crema-terracota genérico.
+   ========================================================= */
+:root {
+  /* Color */
+  --navy-950: #0e2338;
+  --navy-900: #12304d;
+  --navy-800: #1a4066;
+  --navy-700: #24537f;
+  --navy-100: #e7edf4;
+
+  --gold-600: #b9832a;
+  --gold-500: #d9a13f;
+  --gold-300: #ecc98a;
+  --gold-100: #faf1de;
+
+  --paper-0: #fdfcfa;
+  --paper-50: #f7f4ee;
+  --paper-100: #efe9de;
+
+  --ink-900: #1c1c1a;
+  --ink-700: #46443e;
+  --ink-500: #6f6c62;
+  --ink-300: #a29e92;
+
+  --success: #3f7a52;
+  --line: #e2ddd0;
+
+  /* Type */
+  --font-display: "Fraunces", "Iowan Old Style", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scale */
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.08rem);
+  --step-1: clamp(1.2rem, 1.13rem + 0.35vw, 1.4rem);
+  --step-2: clamp(1.5rem, 1.35rem + 0.7vw, 1.9rem);
+  --step-3: clamp(1.9rem, 1.65rem + 1.2vw, 2.6rem);
+  --step-4: clamp(2.4rem, 2rem + 2vw, 3.6rem);
+  --step-5: clamp(3rem, 2.4rem + 3vw, 4.6rem);
+
+  /* Layout */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --container: 1180px;
+  --shadow-card: 0 1px 2px rgba(14, 35, 56, 0.04), 0 8px 24px rgba(14, 35, 56, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(14, 35, 56, 0.06), 0 16px 40px rgba(14, 35, 56, 0.1);
+}

@@ -1,0 +1,52 @@
+.auth-page { display: flex; justify-content: center; }
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper-0);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+.auth-card__chars { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.auth-card h1 { font-size: var(--step-2); margin-bottom: 4px; }
+.auth-card__hint { color: var(--ink-500); margin-bottom: 20px; }
+.auth-form { display: grid; gap: 14px; text-align: left; }
+.auth-form--wide { max-width: 440px; }
+.auth-form label { display: grid; gap: 6px; font-size: 0.86rem; font-weight: 600; color: var(--navy-950); }
+.auth-form input,
+.auth-form select {
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+}
+.auth-form input:focus,
+.auth-form select:focus { border-color: var(--navy-800); }
+.auth-submit {
+  min-height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: var(--navy-950);
+  color: var(--paper-0);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.auth-submit:hover { background: var(--navy-800); }
+.auth-submit:disabled { opacity: 0.6; cursor: wait; }
+.auth-error { color: #7a281f; background: #fdf3f2; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.88rem; margin: 0; }
+.auth-ok { color: #1f4a2e; background: #eaf4ed; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.88rem; margin: 0; }
+.auth-meta { font-size: 0.78rem; color: var(--ink-500); margin: 0; }
+.auth-limit { max-width: 60ch; margin-top: 20px; font-size: 0.82rem; color: var(--ink-500); }
+.auth-link { color: var(--navy-800); font-weight: 600; text-decoration: underline; }
+.student-chars { display: flex; gap: 8px; margin: 12px 0 20px; }
+
+.admin-table { border-collapse: collapse; width: 100%; max-width: 760px; margin-bottom: 32px; font-size: 0.9rem; }
+.admin-table th, .admin-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.admin-table th { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-600); }
+.admin-reset h2 { font-size: 1.05rem; margin-bottom: 12px; }

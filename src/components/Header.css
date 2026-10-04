@@ -1,0 +1,190 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(253, 252, 250, 0.92);
+  backdrop-filter: saturate(160%) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  gap: 16px;
+}
+
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.site-header__logo {
+  height: 44px;
+  width: auto;
+}
+
+.site-header__church-badge {
+  height: 30px;
+  width: auto;
+  border-radius: 6px;
+  margin-left: 4px;
+  opacity: 0.92;
+  flex-shrink: 0;
+}
+
+.site-header__brandtext {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.site-header__brandtext strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
+  color: var(--navy-950);
+}
+
+.site-header__brandtext small {
+  font-size: 0.72rem;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.site-header__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink-700);
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.site-header__link:hover {
+  background: var(--navy-100);
+  color: var(--navy-950);
+}
+
+.site-header__link.is-active {
+  background: var(--navy-950);
+  color: var(--paper-0);
+}
+
+.site-header__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.site-header__toggle span {
+  width: 24px;
+  height: 2px;
+  background: var(--navy-950);
+  border-radius: 2px;
+}
+
+@media (max-width: 880px) {
+  .site-header__toggle {
+    display: flex;
+  }
+
+  .site-header__nav {
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    background: var(--paper-0);
+    border-bottom: 1px solid var(--line);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 20px 20px;
+    gap: 2px;
+    display: none;
+  }
+
+  .site-header__nav.is-open {
+    display: flex;
+  }
+
+  .site-header__link {
+    padding: 12px 14px;
+  }
+
+  .site-header__brandtext small {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header__church-badge {
+    display: none;
+  }
+}
+
+.site-header__auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.site-header__user {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--navy-950);
+  padding: 4px 8px;
+}
+.site-header__user small { font-size: 0.68rem; font-weight: 500; color: var(--gold-600); text-transform: uppercase; letter-spacing: 0.05em; }
+.site-header__logout,
+.site-header__login {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--navy-950);
+  background: transparent;
+  color: var(--navy-950);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.site-header__logout:hover,
+.site-header__login:hover { background: var(--navy-950); color: var(--paper-0); }
+@media (max-width: 880px) {
+  .site-header__auth {
+    margin: 8px 0 0;
+    padding: 10px 0 0;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    justify-content: space-between;
+  }
+}

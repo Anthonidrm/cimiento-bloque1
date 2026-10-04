@@ -1,0 +1,36 @@
+.prep-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prep-bar__label {
+  font-size: 0.78rem;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
+.prep-bar__track {
+  flex-grow: 1;
+  height: 8px;
+  background: var(--navy-100);
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.prep-bar__fill {
+  height: 100%;
+  background: var(--gold-500);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.prep-bar__percent {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}

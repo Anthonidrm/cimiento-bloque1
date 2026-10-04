@@ -1,0 +1,72 @@
+.annual-module {
+  margin-bottom: 40px;
+}
+
+.annual-module__title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.annual-module__range {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--gold-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.annual-module__notdev {
+  font-size: 0.88rem;
+  color: var(--ink-500);
+  font-style: italic;
+  padding: 14px 0;
+}
+
+.annual-week-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.annual-week-item {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.annual-week-item__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.annual-week-item__num {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold-600);
+}
+
+.annual-week-item__title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--navy-950);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.annual-week-item__prep {
+  margin-top: 8px;
+}

@@ -1,0 +1,32 @@
+.site-footer {
+  background: var(--navy-950);
+  color: var(--navy-100);
+  margin-top: 80px;
+}
+
+.site-footer__inner {
+  padding: 40px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site-footer strong {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.site-footer p {
+  margin: 4px 0 0;
+  color: var(--gold-300);
+  font-size: 0.9rem;
+}
+
+.site-footer__meta {
+  color: var(--navy-100) !important;
+  font-size: 0.82rem !important;
+  opacity: 0.7;
+}

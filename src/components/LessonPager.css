@@ -1,0 +1,81 @@
+.lesson-pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 8px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.lesson-pager__link {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  min-width: 0;
+}
+
+.lesson-pager__link:hover {
+  border-color: var(--gold-500);
+  background: var(--gold-100);
+}
+
+.lesson-pager__link--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.lesson-pager__dir {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold-600);
+  margin-bottom: 4px;
+}
+
+.lesson-pager__label {
+  font-size: 0.9rem;
+  color: var(--ink-900);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.lesson-pager__back {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy-800);
+  white-space: nowrap;
+  padding: 8px 12px;
+}
+
+.lesson-pager__back:hover {
+  text-decoration: underline;
+}
+
+.lesson-pager__spacer {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .lesson-pager {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-pager__link--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .lesson-pager__back {
+    order: -1;
+    justify-self: start;
+  }
+}

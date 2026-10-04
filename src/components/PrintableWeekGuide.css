@@ -1,0 +1,105 @@
+.print-week-guide {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: letter;
+    margin: 1.6cm 1.8cm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .print-week-guide {
+    display: block;
+    color: #1b1b1b;
+    background: #fff;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .pwg__logos {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .pwg__logo { height: 34px; width: auto; }
+  .pwg__badge { height: 26px; width: auto; }
+  .pwg__chars { margin-left: auto; display: flex; gap: 4px; }
+
+  .pwg__brand {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #444;
+    margin: 0 0 4px;
+  }
+
+  .pwg__header {
+    border-bottom: 2px solid #12304d;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  .pwg__header h1 { font-size: 20pt; margin: 0; color: #12304d; }
+  .pwg__phrase { font-style: italic; margin: 6px 0 0; color: #444; }
+
+  .pwg__block { margin: 0 0 14px; }
+  .pwg__block h2 {
+    font-size: 11.5pt;
+    color: #12304d;
+    border-bottom: 1px solid #b9832a;
+    padding-bottom: 3px;
+    margin: 0 0 7px;
+    break-after: avoid;
+  }
+  .pwg__num { color: #b9832a; font-weight: bold; margin-right: 4px; }
+
+  .pwg__block p,
+  .pwg__block li,
+  .pwg__block dd,
+  .pwg__block dt { font-size: 10.5pt; margin: 0 0 5px; }
+  .pwg__block ul, .pwg__block ol { margin: 0 0 6px; padding-left: 20px; }
+  .pwg__block .guide-h {
+    font-size: 10.5pt;
+    margin: 8px 0 3px;
+    color: #12304d;
+    break-after: avoid;
+  }
+  .pwg__block .guide-quote {
+    margin: 4px 0 8px;
+    padding: 6px 12px;
+    border-left: 3px solid #b9832a;
+    font-style: italic;
+    font-size: 11.5pt;
+  }
+  .pwg__block .guide-quote span {
+    display: block;
+    font-style: normal;
+    font-size: 9pt;
+    color: #555;
+    margin-top: 3px;
+  }
+  .pwg__block .guide-note {
+    font-size: 9.5pt;
+    color: #444;
+    border: 1px solid #ccc;
+    padding: 5px 8px;
+    background: #f7f7f7;
+  }
+  .pwg__block .guide-kv > div { display: grid; grid-template-columns: 110px 1fr; gap: 8px; margin-bottom: 3px; }
+  .pwg__block .guide-kv dt { font-weight: bold; }
+  .pwg__block .guide-kv dd { margin: 0; }
+
+  .pwg__footer {
+    margin-top: 18px;
+    padding-top: 8px;
+    border-top: 1px solid #999;
+    font-size: 8.5pt;
+    color: #555;
+  }
+}
