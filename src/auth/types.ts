@@ -24,4 +24,8 @@ export interface Session {
   role: Role;
   displayName: string;
   startedAt: string;
+  /** Solo con backend: nombre de acceso y si debe definir su contraseña (primer acceso). */
+  username?: string;
+  mustChangePassword?: boolean;
+  source?: "local" | "supabase";
 }

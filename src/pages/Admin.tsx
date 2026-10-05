@@ -1,5 +1,13 @@
 import { useState, type FormEvent } from "react";
 import Breadcrumbs from "../components/Breadcrumbs";
+import { Tabs, BackendGate } from "../components/panels/ui";
+import AssignTeachers from "../components/panels/AssignTeachers";
+import { TeacherProgressTable, StudentProgressTable } from "../components/panels/ProgressTables";
+import { SessionsReports } from "../components/panels/SessionsReports";
+import { UsersManager, GroupsManager } from "../components/panels/UsersManager";
+import { ResourcesManager } from "../components/panels/ResourcesPanel";
+import { ActivitiesPanel } from "../components/panels/ActivitiesPanel";
+import { NotificationsPanel, ChangeLogPanel, LessonsTable, PastoralReviewPanel } from "../components/panels/ExtrasPanels";
 import { useAuth } from "../auth/AuthContext";
 import { ROLE_LABELS } from "../auth/types";
 import AreaSections, { type AreaSection } from "../components/AreaSections";
@@ -21,7 +29,7 @@ const SECTIONS: AreaSection[] = [
   { title: "I. Configuración", description: "Pesos de preparación, intentos del examen y uso de la presentación.", status: "partial", note: "Se configuran en src/config/*.ts; aún no desde una pantalla." },
 ];
 
-export default function Admin() {
+function LocalAdmin() {
   const { session } = useAuth();
   const users = listUsers();
   const [target, setTarget] = useState(users[0]?.id ?? "");
@@ -99,6 +107,54 @@ export default function Admin() {
           funcione en todos los dispositivos se necesita el backend (próxima fase).
         </p>
       </section>
+    </div>
+  );
+}
+
+const TABS = [
+  { id: "usuarios", label: "Usuarios" }, { id: "maestros", label: "Maestros" }, { id: "estudiantes", label: "Estudiantes" }, { id: "grupos", label: "Grupos" },
+  { id: "lecciones", label: "Lecciones" }, { id: "asignaciones", label: "Asignaciones" }, { id: "prog-maestros", label: "Progreso maestros" },
+  { id: "prog-estudiantes", label: "Progreso estudiantes" }, { id: "recursos", label: "Recursos" }, { id: "clases", label: "Clases" },
+  { id: "actividades", label: "Actividades" }, { id: "reportes", label: "Reportes" }, { id: "historial", label: "Historial de cambios" },
+  { id: "revision", label: "Revisión pastoral" }, { id: "notificaciones", label: "Notificaciones" },
+];
+
+/** Administración (solo Administrador). Con backend: panel completo; sin backend: vista local y qué falta. */
+export default function Admin() {
+  const { backend } = useAuth();
+  const [tab, setTab] = useState("usuarios");
+  if (!backend) {
+    return (
+      <>
+        <div className="container page"><BackendGate what="La administración completa (usuarios, asignaciones, progreso, recursos, clases)">{null}</BackendGate></div>
+        <LocalAdmin />
+      </>
+    );
+  }
+  return (
+    <div className="container page">
+      <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Administración" }]} />
+      <header className="page-header">
+        <p className="page-header__eyebrow">Administración</p>
+        <h1>Panel del Administrador</h1>
+        <p className="page-header__desc">Acceso completo: usuarios, roles, maestros, estudiantes, lecciones, asignaciones, progreso, recursos, clases, actividades y reportes.</p>
+      </header>
+      <Tabs tabs={TABS} active={tab} onChange={setTab} />
+      {tab === "usuarios" && <UsersManager />}
+      {tab === "maestros" && <UsersManager only="MAESTRO" />}
+      {tab === "estudiantes" && <UsersManager only="ESTUDIANTE" />}
+      {tab === "grupos" && <GroupsManager />}
+      {tab === "lecciones" && <LessonsTable />}
+      {tab === "asignaciones" && <AssignTeachers />}
+      {tab === "prog-maestros" && <TeacherProgressTable />}
+      {tab === "prog-estudiantes" && <StudentProgressTable />}
+      {tab === "recursos" && <ResourcesManager />}
+      {tab === "clases" && <SessionsReports mode="clases" />}
+      {tab === "actividades" && <ActivitiesPanel canEdit />}
+      {tab === "reportes" && <SessionsReports mode="informes" />}
+      {tab === "historial" && <ChangeLogPanel />}
+      {tab === "revision" && <PastoralReviewPanel />}
+      {tab === "notificaciones" && <NotificationsPanel />}
     </div>
   );
 }

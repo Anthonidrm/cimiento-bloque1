@@ -8,6 +8,7 @@ import { useAuth } from "../auth/AuthContext";
 import { STAFF_ROLES } from "../auth/types";
 import { getAdjacentWeeks, getWeekByNumber } from "../services/weekService";
 import { isExamComplete, getExamScore } from "../services/examService";
+import { ResourcesList } from "../components/panels/ResourcesPanel";
 import "./Course.css";
 import "./WeekHeader.css";
 import "./WeekDetail.css";
@@ -16,7 +17,7 @@ import "../components/LessonPager.css";
 export default function WeekDetail() {
   const week = useWeekParam();
   const lesson = getWeekByNumber(week);
-  const { session } = useAuth();
+  const { session, backend } = useAuth();
   const isStaff = !!session && STAFF_ROLES.includes(session.role);
 
   const [examDone, setExamDone] = useState(false);
@@ -156,6 +157,17 @@ export default function WeekDetail() {
         <section className="week-section">
           <h2>Recursos de la semana (4)</h2>
 
+          {backend ? (
+            <>
+              {isStaff && (
+                <p>
+                  <Link to={`/plan-anual/semana-${lesson.week}/presentacion`}>Proyectar la presentación en la aplicación (cuenta para tu preparación) →</Link>
+                </p>
+              )}
+              <ResourcesList week={lesson.week} />
+            </>
+          ) : (
+            <>
           <div className="resource-row resource-row--featured">
             <div>
               <span className="resource-row__label">🖥️ Presentación para proyectar a los niños</span>
@@ -208,6 +220,9 @@ export default function WeekDetail() {
               )}
             </div>
           ))}
+
+            </>
+          )}
 
           {lesson.verseRVR1960.text && (
             <blockquote className="verse-preview">

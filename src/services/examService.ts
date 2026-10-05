@@ -88,6 +88,11 @@ export function getExamState(week: number): ExamState {
   }
 }
 
+/** Reemplaza el estado local (la sincronización con el servidor lo usa al iniciar sesión). */
+export function saveExamState(week: number, state: ExamState) {
+  saveState(week, state);
+}
+
 function saveState(week: number, state: ExamState) {
   try {
     localStorage.setItem(keyFor(week), JSON.stringify(state));

@@ -4,6 +4,7 @@ import { useWeekParam } from "../utils/weekParam";
 import Breadcrumbs from "../components/Breadcrumbs";
 import PrepBar from "../components/PrepBar";
 import GuideBlocks from "../components/GuideBlocks";
+import { queueGuideSeconds } from "../backend/sync";
 import PreparationPanel from "../components/PreparationPanel";
 import PrintableWeekGuide from "../components/PrintableWeekGuide";
 import { ChildBoy, ChildGirl } from "../components/characters";
@@ -101,6 +102,7 @@ export default function GuidePrep() {
       visitRef.current.seconds += 1;
       const next = addSeconds(progressRef.current, n, 1, nowISO);
       commit(next);
+      queueGuideSeconds(next.week, n, 1);
       if (next.sections[n]?.completed) {
         flushVisit(true);
         setPrepKey((k) => k + 1);

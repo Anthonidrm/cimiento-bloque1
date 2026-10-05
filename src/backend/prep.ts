@@ -6,10 +6,11 @@ export interface ExamAnswerResult { is_correct: boolean; correct_option: string 
 export async function examAnswer(week: number, question: string, option?: string, pairs?: Record<string, string>): Promise<ExamAnswerResult> {
   return unwrap(await getClient().rpc("exam_answer", { p_week: week, p_question: question, p_option: option ?? null, p_pairs: pairs ?? null })) as ExamAnswerResult;
 }
-export async function myExam(week: number) {
+export interface ExamAnswerRow { question_id: string; selected_option: string | null; pairs: Record<string, string> | null; is_correct: boolean; answered_at: string }
+export async function myExam(week: number): Promise<{ attempt: { id: string; attempt_no: number; started_at: string; completed_at: string | null; score_percent: number | null } | null; answers: ExamAnswerRow[] }> {
   const attempts = unwrap(await getClient().from("exam_attempts").select("id, attempt_no, started_at, completed_at, score_percent").eq("week", week)) as { id: string; attempt_no: number; started_at: string; completed_at: string | null; score_percent: number | null }[];
-  if (!attempts.length) return { attempt: null, answers: [] as { question_id: string; selected_option: string | null; pairs: Record<string, string> | null; is_correct: boolean; answered_at: string }[] };
-  const answers = unwrap(await getClient().from("exam_answers").select("question_id, selected_option, pairs, is_correct, answered_at").eq("attempt_id", attempts[0].id)) as never;
+  if (!attempts.length) return { attempt: null, answers: [] };
+  const answers = unwrap(await getClient().from("exam_answers").select("question_id, selected_option, pairs, is_correct, answered_at").eq("attempt_id", attempts[0].id)) as ExamAnswerRow[];
   return { attempt: attempts[0], answers };
 }
 export async function guideAddSeconds(week: number, section: number, secs: number) {

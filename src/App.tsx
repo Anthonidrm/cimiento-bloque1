@@ -11,6 +11,7 @@ import WeekExam from "./pages/WeekExam";
 import ExamReview from "./pages/ExamReview";
 import GuidePrep from "./pages/GuidePrep";
 import PresentationViewer from "./pages/PresentationViewer";
+import ClassRoom from "./pages/ClassRoom";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import Admin from "./pages/Admin";
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="mi-progreso" element={<RequireRole roles={STAFF_ROLES}><Progress /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/guia" element={<RequireRole roles={STAFF_ROLES}><GuidePrep /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/presentacion" element={<RequireRole roles={STAFF_ROLES}><PresentationViewer /></RequireRole>} />
+        <Route path="plan-anual/:weekSlug/aula" element={<RequireRole roles={STAFF_ROLES}><ClassRoom /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/examen" element={<RequireRole roles={STAFF_ROLES}><WeekExam /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/revision" element={<RequireRole roles={STAFF_ROLES}><ExamReview /></RequireRole>} />
         <Route path="administracion" element={<RequireRole roles={["ADMINISTRADOR"]}><Admin /></RequireRole>} />

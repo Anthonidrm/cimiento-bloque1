@@ -6,11 +6,13 @@ import { useAuth } from "../auth/AuthContext";
 import { layoutRedirect } from "../auth/landing";
 
 export default function Layout() {
-  const { session } = useAuth();
+  const { session, loading } = useAuth();
   const { pathname } = useLocation();
 
+  if (loading) return <p className="container page" role="status">Cargando…</p>;
+
   // El sistema es privado: sin sesión, cualquier ruta (salvo las públicas) lleva primero al login.
-  const redirect = layoutRedirect(session?.role, pathname);
+  const redirect = layoutRedirect(session?.role, pathname, session?.mustChangePassword);
   if (redirect) return <Navigate to={redirect} replace />;
 
   return (

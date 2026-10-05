@@ -1,12 +1,33 @@
 import { useState } from "react";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { ResourcesList } from "../components/panels/ResourcesPanel";
 import SectionIcon from "../components/SectionIcon";
 import { CATEGORIES, getLibraryByCategory } from "../services/resourceService";
 import "./Course.css";
 import "./Resources.css";
 
+/** Con backend, la biblioteca sale del almacenamiento privado; sin backend, de los archivos públicos del proyecto. */
 export default function Resources() {
+  const { backend } = useAuth();
+  if (backend) {
+    return (
+      <div className="container page">
+        <Breadcrumbs items={[{ label: "Inicio", to: "/" }, { label: "Recursos" }]} />
+        <header className="page-header">
+          <p className="page-header__eyebrow">Biblioteca · Plan Anual</p>
+          <h1>Recursos</h1>
+          <p className="page-header__desc">Los archivos viven en almacenamiento privado y se abren con un enlace temporal.</p>
+        </header>
+        <ResourcesList />
+      </div>
+    );
+  }
+  return <LocalResources />;
+}
+
+function LocalResources() {
   const grouped = getLibraryByCategory();
   const [active, setActive] = useState<(typeof CATEGORIES)[number]>(CATEGORIES[0]);
   const items = grouped[active];

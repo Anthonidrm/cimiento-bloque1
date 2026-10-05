@@ -30,12 +30,14 @@ export function normalizePath(pathname: string): string {
  *  - estudiante: solo su área, su cuenta y el login.
  * Devuelve la ruta a la que redirigir, o null si puede continuar.
  */
-export function layoutRedirect(role: Role | undefined, pathname: string): string | null {
+export function layoutRedirect(role: Role | undefined, pathname: string, mustChangePassword = false): string | null {
   const p = normalizePath(pathname);
   if (!role) {
     if (PUBLIC_PATHS.includes(p)) return null;
     return p === "/" ? "/login" : `/login?next=${encodeURIComponent(p)}`;
   }
+  // Primer acceso (solo con backend): hasta definir su contraseña, el usuario solo puede estar en /cuenta.
+  if (mustChangePassword && p !== "/cuenta" && p !== "/login") return "/cuenta";
   if (role === "ESTUDIANTE" && !STUDENT_ALLOWED.includes(p)) return "/estudiante";
   return null;
 }

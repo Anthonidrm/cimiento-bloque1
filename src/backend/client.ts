@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { BACKEND_KEY, BACKEND_URL } from "./config";
+import { BACKEND_KEY, BACKEND_URL, forceBackendConfigured } from "./config";
 
 let client: SupabaseClient | null = null;
 
@@ -19,6 +19,7 @@ export function getClient(): SupabaseClient {
 /** Solo para pruebas: inyecta un cliente ya construido (p. ej. contra el entorno local). */
 export function setClientForTests(c: SupabaseClient | null) {
   client = c;
+  forceBackendConfigured(c !== null);
 }
 
 /** Desenvuelve una respuesta de Supabase: devuelve los datos o lanza un Error con el mensaje del servidor. */

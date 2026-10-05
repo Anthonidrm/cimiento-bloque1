@@ -111,4 +111,15 @@ ok(layoutRedirect("ESTUDIANTE", "/estudiante") === null && layoutRedirect("ESTUD
 ok(layoutRedirect("MAESTRO", "/plan-anual") === null, "Un maestro autenticado pasa");
 ok(landingFor("ADMINISTRADOR") === "/administracion" && landingFor("PASTOR") === "/pastor" && landingFor("MAESTRO") === "/maestros" && landingFor("ESTUDIANTE") === "/estudiante", "Cada rol entra a su área");
 
+console.log("7) Juegos del estudiante (lógica pura, con el versículo real)");
+const GL = await import("../../src/games/logic");
+const verse = getWeek(1)!.verseRVR1960.text;
+const ws = GL.words(verse);
+ok(GL.scoreOrder(ws, verse) === 100, "Ordenar: el orden correcto da 100");
+ok(GL.scoreOrder([...ws].reverse(), verse) < 50, "Ordenar: al revés da poco");
+for (const wk of [1, 2, 3, 4]) { const sh = GL.shuffled(GL.words(getWeek(wk)!.verseRVR1960.text), wk * 7919); ok(sh.join(" ") !== GL.words(getWeek(wk)!.verseRVR1960.text).join(" "), `Semana ${wk}: las palabras se desordenan de verdad`); }
+ok(GL.shuffled(ws, 5).join() === GL.shuffled(ws, 5).join(), "El desorden es estable (misma semilla, mismo orden)");
+ok(GL.norm("Creó,") === "creo" && GL.norm("IMAGEN") === "imagen", "Comparar ignora mayúsculas, acentos y signos");
+ok(GL.scoreBlanks(["Dios"], "Y creó Dios al hombre", [2]) === 100 && GL.scoreBlanks(["dios!"], "Y creó Dios al hombre", [2]) === 100 && GL.scoreBlanks(["Cristo"], "Y creó Dios al hombre", [2]) === 0, "Completar: acierta aunque cambien mayúsculas o signos; falla si la palabra es otra");
+ok(GL.scoreBlanks(["Dios", "x"], "Y creó Dios al hombre", [2, 3]) === 50, "Completar: la mitad correcta da 50");
 done();

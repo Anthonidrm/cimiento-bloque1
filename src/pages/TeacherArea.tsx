@@ -4,10 +4,36 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import PrepBar from "../components/PrepBar";
 import { getAllWeeks, getModules } from "../services/weekService";
 import { getPreparationPercent } from "../services/preparationService";
+import { useAuth } from "../auth/AuthContext";
+import { listLessons } from "../backend/teaching";
+import { Loading } from "../components/panels/ui";
+import { useAsync } from "../components/panels/hooks";
+import { TeacherProgressTable, StudentProgressTable } from "../components/panels/ProgressTables";
+import { NotificationsPanel } from "../components/panels/ExtrasPanels";
 import "./Course.css";
 import "./TeacherArea.css";
 
+/** Con backend: mis lecciones asignadas, con acceso al aula; el Administrador y el Pastor ven todas. */
+function MyLessons() {
+  const { session } = useAuth();
+  const q = useAsync(listLessons, []);
+  if (q.loading || q.error) return <Loading state={q} />;
+  const staff = session?.role !== "MAESTRO";
+  const rows = (q.data ?? []).filter((l) => l.teacher_id && (staff || l.teacher_id === session?.userId));
+  return (
+    <section className="pn-section">
+      <h2>{staff ? "Lecciones con maestro asignado" : "Mis lecciones asignadas"}</h2>
+      {rows.length === 0 ? <p>{staff ? "Todavía no hay lecciones asignadas." : "Todavía no tienes lecciones asignadas. El Pastor o el Administrador las asignan."}</p> : (
+        <div className="pn-table-wrap"><table className="pn-table"><thead><tr><th>Semana</th><th>Lección</th><th>Maestro</th><th /></tr></thead><tbody>
+          {rows.map((l) => <tr key={l.week}><td>{l.week}</td><td>{l.title ?? "Tema pendiente"}</td><td>{l.teacher_name}</td><td><Link className="pn-btn" style={{ textDecoration: "none" }} to={`/plan-anual/semana-${l.week}/aula`}>Abrir aula</Link></td></tr>)}
+        </tbody></table></div>
+      )}
+    </section>
+  );
+}
+
 export default function TeacherArea() {
+  const { backend, session } = useAuth();
   const weeks = getAllWeeks().filter((w) => w.status === "developed");
   const modules = getModules();
   const [percents, setPercents] = useState<Record<number, number>>({});
@@ -34,6 +60,15 @@ export default function TeacherArea() {
           progreso se guarda en este navegador.
         </p>
       </header>
+
+      {backend && (
+        <>
+          <MyLessons />
+          <TeacherProgressTable title={session?.role === "MAESTRO" ? "Mi progreso" : "Progreso de maestros"} />
+          <StudentProgressTable title={session?.role === "MAESTRO" ? "Progreso de mis estudiantes" : "Progreso de estudiantes"} />
+          <NotificationsPanel />
+        </>
+      )}
 
       {modules.map((mod) => {
         const modWeeks = weeks.filter((w) => w.module === mod.id);

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
+import { queuePresentationSeconds } from "../backend/sync";
+import { isBackendConfigured } from "../backend/config";
+import { listResources } from "../backend/resources";
+import { signedUrl } from "../backend/students";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { useWeekParam } from "../utils/weekParam";
 import { getWeekByNumber } from "../services/weekService";
@@ -14,11 +18,25 @@ import "./PresentationViewer.css";
  */
 export default function PresentationViewer() {
   const week = useWeekParam();
+  const [params] = useSearchParams();
+  const classSession = params.get("sesion") ?? undefined; // clase en curso (viene del aula)
   const lesson = getWeekByNumber(week);
   const total = PRESENTATION_CONFIG.slideCount;
   const [slide, setSlide] = useState(1);
   const [usage, setUsage] = useState(() => loadUsage(week));
   const stage = useRef<HTMLDivElement>(null);
+  // Con backend, las diapositivas salen del bucket PRIVADO (URL firmadas). Si alguna no se ha migrado todavía, se usa la copia
+  // de public/ (transitorio: el README indica borrar public/ tras validar la migración).
+  const [signed, setSigned] = useState<Record<number, string>>({});
+  useEffect(() => {
+    if (!isBackendConfigured()) return;
+    let live = true;
+    listResources(week)
+      .then((rows) => Promise.all(rows.filter((r) => r.kind === "IMAGEN" && r.slot.startsWith("diapositiva-") && r.current).map(async (r) => [Number(r.slot.split("-")[1]), await signedUrl("recursos", r.current!.storage_path, 3600)] as const)))
+      .then((pairs) => { if (live) setSigned(Object.fromEntries(pairs)); })
+      .catch(() => undefined);
+    return () => { live = false; };
+  }, [week]);
   const slideRef = useRef(1);
   const visit = useRef<{ slide: number; enteredAt: string; seconds: number } | null>(null);
 
@@ -52,6 +70,7 @@ export default function PresentationViewer() {
       }
       visit.current.seconds += 1;
       setUsage(addSlideSeconds(week, s, 1));
+      queuePresentationSeconds(week, s, 1, classSession);
     }, 1000);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(slideRef.current + 1); }
@@ -67,7 +86,7 @@ export default function PresentationViewer() {
       document.removeEventListener("visibilitychange", onHide);
       flush();
     };
-  }, [week, go, flush]);
+  }, [week, go, flush, classSession]);
 
   if (!lesson || lesson.status === "pending" || lesson.teacherPresentation.status !== "available") {
     return <Navigate to="/plan-anual" replace />;
@@ -97,7 +116,7 @@ export default function PresentationViewer() {
       <div className="viewer" ref={stage}>
         <img
           className="viewer__slide"
-          src={slideUrl(lesson.week, slide)}
+          src={signed[slide] ?? slideUrl(lesson.week, slide)}
           alt={`Diapositiva ${slide} de ${total} — ${lesson.title}`}
         />
         <div className="viewer__controls">

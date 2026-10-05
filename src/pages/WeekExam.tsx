@@ -15,6 +15,7 @@ import {
   type AttemptRecord,
 } from "../services/examService";
 import { EXAM_CONFIG } from "../config/examConfig";
+import { pushExamAnswer, getSyncStatus } from "../backend/sync";
 import type { ExamQuestion } from "../data/weekTypes";
 import "./Course.css";
 import "./WeekExam.css";
@@ -65,6 +66,14 @@ export default function WeekExam() {
   function register(q: ExamQuestion, value: Parameters<typeof answerQuestion>[2]) {
     const r = answerQuestion(lesson!.week, q, value);
     setNotice(r.ok ? "" : r.reason);
+    if (r.ok) {
+      // Con backend, el servidor califica y registra de forma definitiva; si no coincide con lo mostrado, se avisa.
+      void pushExamAnswer(lesson!.week, q, value).then((srv) => {
+        if (srv && srv.is_correct !== r.record.isCorrect) setNotice("El servidor calificó esta respuesta de forma distinta; se usará su resultado. Avisa al Administrador.");
+        else if (!srv && getSyncStatus().lastError) setNotice(`No se pudo registrar en el servidor: ${getSyncStatus().lastError}`);
+        setTick((t) => t + 1);
+      });
+    }
     setTick((t) => t + 1);
   }
 

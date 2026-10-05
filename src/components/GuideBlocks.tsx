@@ -1,3 +1,4 @@
+import { isBackendConfigured } from "../backend/config";
 import type { GuideBlock } from "../data/guideSections";
 
 /** Renderiza los bloques de un apartado de la guía (pantalla e impresión). */
@@ -57,7 +58,10 @@ export default function GuideBlocks({
               </ul>
             ) : (
               <div key={i} className="guide-links">
-                {b.links.map((l, j) => (
+                {isBackendConfigured() && b.links.some((l) => !l.href.startsWith("/plan-anual")) && (
+                  <p className="guide-links__note">Los archivos de esta lección (PDF y PPT) están en la sección Recursos, en almacenamiento privado.</p>
+                )}
+                {(isBackendConfigured() ? b.links.filter((l) => l.href.startsWith("/plan-anual")) : b.links).map((l, j) => (
                   <a
                     key={j}
                     href={l.href}

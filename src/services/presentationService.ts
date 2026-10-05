@@ -27,6 +27,10 @@ export function loadUsage(week: number, userId: string = getCurrentUserId()): Pr
   return readJSON<PresentationUsage>(keyFor(userId, week), { userId, week, seconds: {}, visits: [], updatedAt: new Date().toISOString() });
 }
 
+export function saveUsage(u: PresentationUsage): void {
+  writeJSON(keyFor(u.userId, u.week), u);
+}
+
 export function addSlideSeconds(week: number, slide: number, secs: number, userId: string = getCurrentUserId()): PresentationUsage {
   const u = loadUsage(week, userId);
   u.seconds[slide] = (u.seconds[slide] ?? 0) + secs;
