@@ -1,34 +1,33 @@
 # PENDIENTES — PRÓXIMAS FASES
 
-> **Estado a la fecha de esta rama (`feature/sistema-integral-fase-a-b`)** — detalle de cada ítem al final de este bloque.
-> - ✅ Hecho: personajes ajustados, 4 hojas para colorear nuevas, materiales regenerados, login primero, roles con su área,
->   examen con respuesta bloqueada e intentos, preguntas de relación, preparación 50/30/20, presentación por uso real.
-> - 🗄️ Esquema de base de datos **propuesto y probado** (71 pruebas): `supabase/migrations/0001_cimiento_base.sql` y
->   [`BACKEND_PROPUESTA.md`](BACKEND_PROPUESTA.md). **No aplicado** a ningún proyecto.
-> - ⛔ Requiere backend (no se simula con `localStorage`): A–H, J–W, Z, AA–AF, AI y el progreso compartido entre usuarios.
+> **Estado de la rama `feature/sistema-integral-fase-a-b`.** Leyenda: ✅ implementado y probado (con simuladores de Auth y Storage) ·
+> ◐ parcial · ⛔ depende de algo externo. **Nada está aplicado a un Supabase real todavía.**
 
 | Id | Pendiente | Estado |
 |----|-----------|--------|
-| A  | Inicio/finalización de clase | 🗄️ función `start_class()`/`end_class()` probada en SQL; falta backend y pantalla |
-| B  | Temporizador de clase | ⛔ depende de A |
-| C  | Registro de interacción del maestro | ◐ guía/examen/presentación se registran (localStorage); sesión de clase pendiente |
-| D  | Pase de lista | 🗄️ tabla y permisos probados; falta backend y pantalla |
-| E–H | Puntos de asistencia, entrega, participación y examen (4×25) | 🗄️ `lesson_scores` probada; falta backend |
-| I  | Área completa del estudiante | ⛔ solo pantalla de bienvenida |
-| J  | Subida de tareas | 🗄️ ventana de entrega probada; falta Storage |
-| K–M | Juegos digitales | 🗄️ tabla `games`; sin juegos |
-| N  | Fotos de clase | 🗄️ tabla `class_photos`; falta Storage |
-| O–P | Notificaciones / WhatsApp | 🗄️ tabla `notifications` (canal APP); WhatsApp no implementado |
-| Q  | Asignación de maestros | 🗄️ probada en SQL; paneles muestran el estado |
-| R–T | Asignación en 4 horas, a tiempo/fuera de tiempo, días de atraso | 🗄️ vista `v_assignment_status` y alertas probadas |
-| U–W | Reporte de clase y envío a Pastor/Administrador | 🗄️ informe guardado; **envío real sin implementar** (sin proveedor de correo) |
-| X–Y | Actividad de integración y su puntuación | 🗄️ tablas probadas; falta backend y pantalla |
-| Z  | Sistema de coronas | 🗄️ corona automática probada |
-| AA–AC | Recursos/documentos reemplazables, administración por Pastor/Admin | 🗄️ versiones y permisos probados; falta Storage |
-| AD–AF | Progreso del estudiante, fotos visibles, pruebas lúdicas | ⛔ |
-| AG–AH | Examen digital del maestro e historial de errores | ✅ mejorado: respuesta bloqueada, intentos, relación |
-| AI | Asignación de maestros por lección | 🗄️ ver Q |
-| AJ | Actividades de integración del Módulo 1 | ◐ documentadas abajo; falta desarrollarlas |
+| A  | Iniciar / finalizar clase | ✅ servidor (`start_class`/`end_class`) + aula; verifica preparación; excepción Admin/Pastor |
+| B  | Temporizador de clase | ✅ aula |
+| C  | Registro de interacción del maestro | ✅ guía, examen y presentación van al servidor; eventos de clase |
+| D  | Pase de lista | ✅ presente / ausente / excusa; alimenta la puntuación |
+| E–H | Puntos 4×25 (asistencia, asignación, participación, examen) | ✅ automático. ◐ "examen del estudiante" = prueba de completar el versículo: **decisión pastoral pendiente** |
+| I  | Área del estudiante | ✅ 10 secciones; no probada en un navegador real |
+| J  | Subida de tareas | ✅ enlace probado; ◐ archivo: código listo, Storage real sin probar |
+| K–M | Juegos digitales | ◐ arquitectura por lección + 2 juegos del versículo; faltan memoria, bloques, relacionar… |
+| N  | Fotos de clase | ◐ esquema, políticas y pantallas; Storage real sin probar |
+| O–P | Notificaciones | ✅ dentro de la app. ⛔ correo: cola + función sin probar; WhatsApp: no implementado |
+| Q–T | Asignación de maestros (a tiempo / fuera de tiempo / atraso) | ✅ |
+| U–W | Informe de clase | ✅ generado al finalizar. ⛔ envío por correo: requiere proveedor |
+| X–Y | Actividad de integración | ✅ definir, asignar, registrar participación |
+| Z  | Coronas | ✅ |
+| AA–AC | Recursos reemplazables y almacenamiento privado | ✅ con almacenamiento simulado; ⛔ migrar `public/` tras validar |
+| AD–AF | Progreso del estudiante, fotos, pruebas lúdicas | ✅ progreso · ◐ fotos y pruebas |
+| AG–AH | Examen del maestro | ✅ un solo intento, el servidor califica, historial de errores |
+| AI | Asignación de maestros por lección | ✅ |
+| AJ | Actividades de integración del Módulo 1 | ◐ documentadas abajo; falta definirlas y cargarlas (no se inventan) |
+| —  | Semanas 5–52 | ⛔ esperan la fuente oficial de temas |
+| —  | Claves del examen en el JavaScript público | ⛔ requiere mover el contenido a la base de datos |
+| —  | Actividades obligatorias en el % de preparación del maestro | ⛔ peso por definir (hoy 0 %) |
+
 
 
 Requisitos oficiales de CIMIENTO que **no se implementan todavía** pero que **no deben perderse**.
@@ -156,6 +155,6 @@ La base doctrinal de cada apartado 9 usa únicamente las afirmaciones ya definid
 ## E. Cambios del Bloque "Fases A y B" que requieren revisión pastoral
 - **Preguntas de relación** (1 por semana, `s{N}-q9` en `src/data/weeks/weekNN.ts`): los pares se tomaron literalmente de la
   base doctrinal ya definida de cada semana; conviene que el Pastor las revise.
-- **Examen**: 2 intentos y cuenta el mejor (`src/config/examConfig.ts`); la primera respuesta de cada pregunta no se cambia.
+- **Examen del maestro**: **un solo intento** (decisión confirmada). La primera respuesta de cada pregunta queda registrada y no se cambia; si es incorrecta se muestra la correcta y la explicación y cuenta en la calificación. El servidor califica (`exam_answer`).
 - **Presentación (20 %)**: se calcula por diapositivas realmente proyectadas en la app (≥ 5 s cada una); abrir o descargar
   el archivo ya no suma.
