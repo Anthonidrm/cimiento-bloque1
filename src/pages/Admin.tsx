@@ -2,9 +2,24 @@ import { useState, type FormEvent } from "react";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { useAuth } from "../auth/AuthContext";
 import { ROLE_LABELS } from "../auth/types";
+import AreaSections, { type AreaSection } from "../components/AreaSections";
 import { adminResetPassword, listUsers, passwordChangedAt, MIN_PASSWORD_LENGTH } from "../auth/authService";
 import "./Course.css";
 import "./Auth.css";
+
+const BACKEND = "Necesita compartir información entre usuarios (backend). Ver docs/BACKEND_PROPUESTA.md.";
+
+const SECTIONS: AreaSection[] = [
+  { title: "A. Usuarios", description: "Crear, modificar, activar, desactivar, quitar acceso y restablecer contraseñas.", status: "partial", note: "Hoy: lista y restablecimiento solo en este navegador (abajo). Crear, modificar, activar y desactivar requieren backend." },
+  { title: "B. Roles", description: "Administrador, Pastor, Maestro y Estudiante, con permisos distintos.", status: "partial", note: "Los 4 roles y sus permisos de pantalla existen. Cambiar el rol de un usuario requiere backend." },
+  { title: "C. Asignación de maestros", description: "Asignar maestro por lección, con fecha, hora y control de atraso (4 horas).", status: "backend", note: BACKEND },
+  { title: "D. Progreso de maestros", description: "Lecciones asignadas, guía, examen, calificación, presentación y retrasos.", status: "backend", note: "Hoy el progreso se guarda en el navegador de cada maestro." },
+  { title: "E. Progreso de estudiantes", description: "Asistencia, asignaciones, actividades, examen, participación y coronas.", status: "backend", note: BACKEND },
+  { title: "F. Recursos", description: "Agregar, reemplazar y eliminar recursos de cada lección desde la aplicación.", status: "partial", to: "/recursos", note: "Consulta disponible. Reemplazar archivos sin tocar código requiere almacenamiento (backend)." },
+  { title: "G. Lecciones", description: "Plan Anual de 52 semanas; las semanas 1–4 tienen contenido completo.", status: "available", to: "/plan-anual", note: "Las semanas 5–52 esperan la fuente oficial de temas." },
+  { title: "H. Actividades", description: "Actividades obligatorias y actividades de integración por lección.", status: "backend", note: BACKEND },
+  { title: "I. Configuración", description: "Pesos de preparación, intentos del examen y uso de la presentación.", status: "partial", note: "Se configuran en src/config/*.ts; aún no desde una pantalla." },
+];
 
 export default function Admin() {
   const { session } = useAuth();
@@ -38,6 +53,9 @@ export default function Admin() {
         </p>
       </header>
 
+      <AreaSections sections={SECTIONS} />
+
+      <h2 className="admin-h2">Usuarios (estado actual)</h2>
       <table className="admin-table" key={tick}>
         <thead>
           <tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Contraseña cambiada</th></tr>

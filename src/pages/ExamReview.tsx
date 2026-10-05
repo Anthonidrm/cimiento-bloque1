@@ -47,9 +47,9 @@ export default function ExamReview() {
         <p className="page-header__eyebrow">Semana {lesson.week} · {lesson.title}</p>
         <h1>Historial de errores</h1>
         <p className="page-header__desc">
-          Cada error que has cometido en esta semana queda registrado aquí
-          — incluidos los que ya corregiste en un intento posterior — con
-          fecha, tu respuesta, la respuesta correcta y la explicación.
+          Cada error que has cometido en esta semana queda registrado aquí,
+          con el intento del examen, la fecha, tu respuesta, la respuesta
+          correcta y la explicación. Las respuestas registradas no se modifican.
         </p>
       </header>
 
@@ -71,10 +71,10 @@ export default function ExamReview() {
                       s.currentlyCorrect ? "is-resolved" : "is-open"
                     }`}
                   >
-                    {s.currentlyCorrect ? "Ya corregida" : "Sigue incorrecta"}
+                    {s.currentlyCorrect ? "Corregida en un intento posterior" : "Sigue incorrecta"}
                   </span>
                   <span className="exam-review__total-attempts">
-                    {s.totalAttempts} intento{s.totalAttempts !== 1 ? "s" : ""} en total
+                    {s.totalAttempts} intento{s.totalAttempts !== 1 ? "s" : ""} del examen
                   </span>
                 </div>
                 <p className="exam-question__prompt">{q.prompt}</p>
@@ -86,15 +86,33 @@ export default function ExamReview() {
                     return (
                       <div key={idx} className="exam-review__attempt-card">
                         <p className="exam-review__attempt-meta">
-                          Intento #{a.attemptNumber} · {formatDate(a.answeredAt)}
+                          Intento #{a.attemptNumber} del examen · {formatDate(a.answeredAt)}
                         </p>
-                        <p className="exam-review__row">
-                          Tu respuesta: <span className="exam-review__wrong">{selected?.text}</span>
-                        </p>
-                        <p className="exam-review__row">
-                          Respuesta correcta:{" "}
-                          <span className="exam-review__right">{correct?.text}</span>
-                        </p>
+                        {q.type === "matching" ? (
+                          <>
+                            {(q.pairs ?? []).map((p) => (
+                              <p key={p.left} className="exam-review__row">
+                                {p.left} →{" "}
+                                <span className={a.pairs?.[p.left] === p.right ? "exam-review__right" : "exam-review__wrong"}>
+                                  {a.pairs?.[p.left] ?? "—"}
+                                </span>
+                                {a.pairs?.[p.left] !== p.right && (
+                                  <> (correcto: <span className="exam-review__right">{p.right}</span>)</>
+                                )}
+                              </p>
+                            ))}
+                          </>
+                        ) : (
+                          <>
+                            <p className="exam-review__row">
+                              Tu respuesta: <span className="exam-review__wrong">{selected?.text}</span>
+                            </p>
+                            <p className="exam-review__row">
+                              Respuesta correcta:{" "}
+                              <span className="exam-review__right">{correct?.text}</span>
+                            </p>
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -109,7 +127,7 @@ export default function ExamReview() {
 
       <div className="exam-footer">
         <Link to={`/plan-anual/semana-${lesson.week}/examen`} className="exam-footer__link">
-          ← Volver a intentar el examen
+          ← Volver al examen
         </Link>
         <Link to={`/plan-anual/semana-${lesson.week}`} className="exam-footer__link">
           Volver a la guía de la semana

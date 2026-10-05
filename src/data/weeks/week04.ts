@@ -190,6 +190,22 @@ export const week04: WeekGuide = {
       explanation:
         "Esta pregunta evalúa si el maestro puede aplicar la síntesis completa del módulo (semanas 1 a 4), no solo el contenido aislado de la semana 4, a una situación real de comparación entre niños.",
     },
+    {
+      id: "s4-q9",
+      type: "matching",
+      prompt:
+        "Relaciona cada elemento con su significado según la base doctrinal de la lección.",
+      options: [],
+      correctOptionId: "",
+      pairs: [
+        { left: "Origen del valor de una persona", right: "Lo otorga Dios; no se gana por desempeño, apariencia ni aprobación de otros" },
+        { left: "Mateo 10:29–31", right: "Jesús confirma en el Nuevo Testamento la dignidad humana enseñada en el Antiguo" },
+        { left: "Fundamento del valor en este módulo", right: "La creación, no la redención" },
+        { left: "Error a evitar en esta semana", right: "Introducir la cruz como fundamento del valor en este punto del currículo" },
+      ],
+      explanation:
+        "Según la base doctrinal de la semana: el valor lo otorga Dios por haber creado, hecho a su imagen y conocido a cada persona; Jesús lo confirma en Mateo 10; el fundamento en este módulo es la creación y no se debe anticipar la cruz.",
+    },
   ],
 
   teacherPresentation: {

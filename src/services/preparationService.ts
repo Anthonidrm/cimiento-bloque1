@@ -3,8 +3,8 @@
 // 50 % restante configurable y todavía pendiente de definir).
 import { getWeek } from "../data/weeks";
 import { getCurrentUserId } from "../auth/session";
-import { readJSON, writeJSON } from "../utils/storage";
 import { PREPARATION_CONFIG, resolveWeights } from "../config/preparationConfig";
+import { getPresentationUsage } from "./presentationService";
 import { GUIDE_SECTION_COUNT } from "../data/guideSections";
 import { completedCount, loadProgress } from "./guidePrepService";
 import { getExamScore, isExamComplete } from "./examService";
@@ -21,29 +21,7 @@ export interface PreparationComponent {
 export interface PreparationResult {
   percent: number;
   components: PreparationComponent[];
-  remainingIsProvisional: boolean;
-}
-
-interface PresentationUse {
-  firstOpenedAt: string;
-  lastOpenedAt: string;
-  count: number;
-}
-
-const presKey = (userId: string, week: number) => `cimiento:presentation:${userId}:${week}`;
-
-export function recordPresentationUse(week: number, userId: string = getCurrentUserId()): void {
-  const now = new Date().toISOString();
-  const prev = readJSON<PresentationUse | null>(presKey(userId, week), null);
-  writeJSON(presKey(userId, week), {
-    firstOpenedAt: prev?.firstOpenedAt ?? now,
-    lastOpenedAt: now,
-    count: (prev?.count ?? 0) + 1,
-  });
-}
-
-export function hasUsedPresentation(week: number, userId: string = getCurrentUserId()): boolean {
-  return !!readJSON<PresentationUse | null>(presKey(userId, week), null);
+  activitiesPending: boolean;
 }
 
 export function computePreparation(week: number, userId: string = getCurrentUserId()): PreparationResult {
@@ -53,7 +31,7 @@ export function computePreparation(week: number, userId: string = getCurrentUser
   const totalQ = getWeek(week)?.examQuestions.length ?? 0;
   const examDone = isExamComplete(week, totalQ);
   const score = examDone ? getExamScore(week, totalQ) : 0;
-  const presUsed = hasUsedPresentation(week, userId);
+  const pres = getPresentationUsage(week, userId);
 
   const components: PreparationComponent[] = [
     {
@@ -76,9 +54,9 @@ export function computePreparation(week: number, userId: string = getCurrentUser
       key: "presentation",
       label: "Uso de la presentación",
       weight: w.presentation,
-      earned: presUsed ? w.presentation : 0,
-      done: presUsed,
-      detail: presUsed ? "Presentación abierta" : "Aún no abierta",
+      earned: pres.fraction * w.presentation,
+      done: pres.slidesUsed === pres.total,
+      detail: `${pres.slidesUsed} de ${pres.total} diapositivas proyectadas`,
     },
     {
       key: "mandatoryActivities",
@@ -94,7 +72,7 @@ export function computePreparation(week: number, userId: string = getCurrentUser
   return {
     percent,
     components,
-    remainingIsProvisional: PREPARATION_CONFIG.remainingIsProvisional,
+    activitiesPending: PREPARATION_CONFIG.mandatoryActivitiesPending,
   };
 }
 

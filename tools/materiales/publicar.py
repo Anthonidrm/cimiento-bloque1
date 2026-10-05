@@ -12,3 +12,15 @@ for n in (1, 2, 3, 4):
         assert os.path.exists(s), f"falta {s}"
         shutil.copyfile(s, os.path.join(dst, src)); n_ok += 1
 print(f"{n_ok} archivos publicados en public/")
+
+# Diapositivas como imágenes para el visor de la app (public/presentaciones/semana-N/slide-K.jpg)
+import subprocess, glob
+for n in (1, 2, 3, 4):
+    dst = os.path.join(C.PUB, "presentaciones", f"semana-{n}")
+    os.makedirs(dst, exist_ok=True)
+    for old in glob.glob(os.path.join(dst, "slide-*.jpg")):
+        os.remove(old)
+    subprocess.run(["pdftoppm", "-jpeg", "-jpegopt", "quality=82", "-r", "96", os.path.join(C.OUT, f"presentacion-semana-{n}.pdf"), os.path.join(dst, "slide")], check=True)
+    for f in glob.glob(os.path.join(dst, "slide-*.jpg")):           # slide-1.jpg … (sin ceros a la izquierda)
+        base = os.path.basename(f); num = int(base.split("-")[1].split(".")[0]); os.rename(f, os.path.join(dst, f"slide-{num}.jpg"))
+    print(f"semana {n}: {len(glob.glob(os.path.join(dst, 'slide-*.jpg')))} diapositivas (imágenes)")

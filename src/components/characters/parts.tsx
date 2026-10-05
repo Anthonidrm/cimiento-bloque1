@@ -134,7 +134,7 @@ export function Face({ skin, variant }: { skin: string; variant: "girl" | "boy" 
   const ery = g ? 10.5 : 8.4;
   const mouthY = g ? cy + 25 : cy + 26;
 
-  const Eye = ({ x, sign }: { x: number; sign: 1 | -1 }) => (
+  const eye = (x: number, sign: 1 | -1) => (
     <g>
       <ellipse cx={x} cy={eyeY} rx={erx + 2.6} ry={ery + 1.6} fill="#FFFFFF" />
       <ellipse cx={x} cy={eyeY + 0.5} rx={erx} ry={ery} fill={INK} />
@@ -165,8 +165,8 @@ export function Face({ skin, variant }: { skin: string; variant: "girl" | "boy" 
       <ellipse cx={100} cy={cy} rx={rx} ry={ry} fill={skin} stroke={shadow} strokeWidth={2} />
       <circle cx={100 - rx * 0.56} cy={cy + 17} r={7.5} fill={g ? shade(skin, -0.28) : "#D98B6A"} opacity={g ? 0.45 : 0.4} />
       <circle cx={100 + rx * 0.56} cy={cy + 17} r={7.5} fill={g ? shade(skin, -0.28) : "#D98B6A"} opacity={g ? 0.45 : 0.4} />
-      <Eye x={100 - dx} sign={-1} />
-      <Eye x={100 + dx} sign={1} />
+      {eye(100 - dx, -1)}
+      {eye(100 + dx, 1)}
       {/* cejas */}
       {g ? (
         <g stroke={INK} strokeWidth={3} fill="none" strokeLinecap="round">

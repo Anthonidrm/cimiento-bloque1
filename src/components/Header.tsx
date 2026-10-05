@@ -15,18 +15,17 @@ interface NavItem {
 
 /** Navegación según el rol. Un visitante sin sesión solo ve las páginas públicas. */
 function navFor(role: Role | undefined): NavItem[] {
+  if (!role) return [{ to: "/sobre-cimiento", label: "Sobre CIMIENTO" }];
   if (role === "ESTUDIANTE") return [{ to: "/estudiante", label: "Mi área" }];
   const items: NavItem[] = [
     { to: "/", label: "Inicio", end: true },
     { to: "/plan-anual", label: "Plan Anual" },
     { to: "/recursos", label: "Recursos" },
+    { to: "/maestros", label: "Maestros" },
+    { to: "/mi-progreso", label: "Mi progreso" },
   ];
-  if (role === "MAESTRO" || role === "PASTOR" || role === "ADMINISTRADOR") {
-    items.push({ to: "/maestros", label: "Maestros" }, { to: "/mi-progreso", label: "Mi progreso" });
-  }
-  if (role === "PASTOR" || role === "ADMINISTRADOR") {
-    items.push({ to: "/administracion", label: "Administración" });
-  }
+  if (role === "PASTOR" || role === "ADMINISTRADOR") items.push({ to: "/pastor", label: "Pastor" });
+  if (role === "ADMINISTRADOR") items.push({ to: "/administracion", label: "Administración" });
   items.push({ to: "/sobre-cimiento", label: "Sobre CIMIENTO" });
   return items;
 }

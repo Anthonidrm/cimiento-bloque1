@@ -188,6 +188,22 @@ export const week03: WeekGuide = {
       explanation:
         "La aplicación de esta lección invita a que el niño encuentre consuelo en la cercanía de Dios descrita en el salmo, validando lo que siente mientras se le recuerda esa verdad.",
     },
+    {
+      id: "s3-q9",
+      type: "matching",
+      prompt:
+        "Relaciona cada elemento con su significado según la base doctrinal de la lección.",
+      options: [],
+      correctOptionId: "",
+      pairs: [
+        { left: "Salmo 139:13–16", right: "Dios formó a la persona con cuidado y la conocía desde antes de nacer" },
+        { left: "Carácter del conocimiento de Dios", right: "Específico, individual e íntimo — no genérico ni distante" },
+        { left: "Tono correcto al enseñar este salmo", right: "Cercanía y adoración, no temor" },
+        { left: "Error a evitar con este salmo", right: "Convertirlo en una lección de biología prenatal" },
+      ],
+      explanation:
+        "Según la base doctrinal de la semana: el conocimiento de Dios es específico, individual e íntimo y comenzó antes del nacimiento; el salmo se enseña con cercanía y adoración, no con temor, y sin convertirlo en una lección de biología prenatal.",
+    },
   ],
 
   teacherPresentation: {

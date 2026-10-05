@@ -186,6 +186,22 @@ export const week01: WeekGuide = {
       explanation:
         "La respuesta debe conectar directamente con la verdad central de la semana: el niño fue creado a propósito por Dios; ese es el fundamento de su valor, no su apariencia ni su comportamiento.",
     },
+    {
+      id: "s1-q9",
+      type: "matching",
+      prompt:
+        "Relaciona cada elemento con su significado según la base doctrinal de la lección.",
+      options: [],
+      correctOptionId: "",
+      pairs: [
+        { left: "Génesis 1:26 («Hagamos al hombre…»)", right: "La creación del ser humano estuvo precedida por una deliberación divina" },
+        { left: "Génesis 2:7", right: "Dios formó al hombre del polvo y sopló en él aliento de vida" },
+        { left: "Lo que el texto afirma", right: "QUIÉN creó y que hubo propósito" },
+        { left: "Lo que el texto no resuelve", right: "El mecanismo y el tiempo de la creación en términos científicos" },
+      ],
+      explanation:
+        "Según la base doctrinal de la semana: el texto afirma quién creó y que hubo propósito (no debate el cómo en términos científicos); Génesis 1:26 muestra la deliberación divina y Génesis 2:7 la formación del hombre del polvo con aliento de vida.",
+    },
   ],
 
   teacherPresentation: {

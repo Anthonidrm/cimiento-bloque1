@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { landingFor } from "../auth/landing";
 import { ChildBoy, ChildGirl } from "../components/characters";
 import "./Course.css";
 import "./Auth.css";
@@ -17,7 +18,7 @@ export default function Login() {
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
 
   if (session) {
-    return <Navigate to={safeNext ?? (session.role === "ESTUDIANTE" ? "/estudiante" : "/maestros")} replace />;
+    return <Navigate to={safeNext ?? landingFor(session.role)} replace />;
   }
 
   async function onSubmit(e: FormEvent) {

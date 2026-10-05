@@ -15,7 +15,8 @@ export type ExamQuestionType =
   | "comprehension"
   | "scenario"
   | "pedagogical"
-  | "doctrinal";
+  | "doctrinal"
+  | "matching";
 
 export interface ExamOption {
   id: string;
@@ -28,6 +29,8 @@ export interface ExamQuestion {
   prompt: string;
   options: ExamOption[];
   correctOptionId: string;
+  /** Solo para type "matching": pares correctos (izquierda ↔ derecha). `options` queda vacío. */
+  pairs?: { left: string; right: string }[];
   explanation: string; // se muestra siempre, en correcto e incorrecto
 }
 

@@ -50,3 +50,4 @@
 .admin-table th, .admin-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .admin-table th { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-600); }
 .admin-reset h2 { font-size: 1.05rem; margin-bottom: 12px; }
+.admin-h2 { font-size: 1.05rem; margin: 8px 0 12px; }

@@ -45,13 +45,11 @@ export default function PreparationPanel({ week, refreshKey = 0 }: { week: numbe
           </li>
         ))}
       </ul>
-      {result.remainingIsProvisional && (
-        <p className="prep-panel__note">
-          El reparto del 50 % restante (preparación y actividades obligatorias) todavía no está
-          definido; por ahora lo recibe provisionalmente la preparación con la guía. El examen vale
-          30 % y la presentación 20 %.
-        </p>
-      )}
+      <p className="prep-panel__note">
+        Guía 50 % (según apartados completados) · Examen 30 % · Presentación 20 % (según diapositivas
+        realmente proyectadas en la aplicación).
+        {result.activitiesPending && " Las actividades obligatorias se integrarán cuando se defina su estructura."}
+      </p>
     </div>
   );
 }

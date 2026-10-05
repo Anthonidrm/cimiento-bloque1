@@ -192,6 +192,22 @@ export const week02: WeekGuide = {
       explanation:
         "La aplicación práctica de esta lección es tratar a otros con respeto porque llevan la imagen de Dios — un fundamento que no depende del comportamiento de la persona.",
     },
+    {
+      id: "s2-q9",
+      type: "matching",
+      prompt:
+        "Relaciona cada elemento con su significado según la base doctrinal de la lección.",
+      options: [],
+      correctOptionId: "",
+      pairs: [
+        { left: "Portar la imagen de Dios significa…", right: "Reflejar —no igualar— ciertos atributos de Dios" },
+        { left: "Génesis 5:1–2", right: "Confirma que la imagen de Dios es universal" },
+        { left: "Portar la imagen de Dios es la base de…", right: "La dignidad humana universal, presente en cada persona sin excepción" },
+        { left: "Error doctrinal a evitar", right: "Confundir «imagen» con «igualdad»" },
+      ],
+      explanation:
+        "Según la base doctrinal de la semana: la imagen de Dios es reflejo y no igualdad; Génesis 5 confirma que es universal; es la base de la dignidad humana universal; y confundir imagen con igualdad es un error a evitar.",
+    },
   ],
 
   teacherPresentation: {

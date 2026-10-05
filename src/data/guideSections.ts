@@ -198,7 +198,9 @@ type Extras = NonNullable<ReturnType<typeof getGuideExtras>>;
 
 function pptBlocks(w: WeekGuide, ex: Extras): GuideBlock[] {
   const s = ex.slides;
-  const links: { label: string; href: string }[] = [];
+  const links: { label: string; href: string }[] = [
+    { label: "Proyectar la presentación en la aplicación (cuenta para tu preparación)", href: `/plan-anual/semana-${w.week}/presentacion` },
+  ];
   if (w.teacherPresentation.fileUrl) links.push({ label: "Abrir presentación (PDF)", href: w.teacherPresentation.fileUrl });
   if (w.teacherPresentation.secondaryUrl)
     links.push({ label: w.teacherPresentation.secondaryLabel ?? "Descargar PowerPoint", href: w.teacherPresentation.secondaryUrl });
@@ -206,7 +208,7 @@ function pptBlocks(w: WeekGuide, ex: Extras): GuideBlock[] {
     { t: "h", text: "Cómo utilizar este recurso" },
     {
       t: "p",
-      text: "La presentación tiene 9 diapositivas pensadas para proyectarse a los niños. Acompaña la clase, no la sustituye: el desarrollo completo está en esta guía.",
+      text: "La presentación tiene 9 diapositivas pensadas para proyectarse a los niños. Acompaña la clase, no la sustituye: el desarrollo completo está en esta guía. El 20 % de tu preparación se calcula según las diapositivas que realmente proyectes desde la aplicación; abrir o descargar el archivo no suma.",
     },
     {
       t: "ol",

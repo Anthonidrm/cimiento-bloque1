@@ -7,7 +7,6 @@ import { ChildBoy, ChildGirl } from "../components/characters";
 import { useAuth } from "../auth/AuthContext";
 import { STAFF_ROLES } from "../auth/types";
 import { getAdjacentWeeks, getWeekByNumber } from "../services/weekService";
-import { recordPresentationUse } from "../services/preparationService";
 import { isExamComplete, getExamScore } from "../services/examService";
 import "./Course.css";
 import "./WeekHeader.css";
@@ -22,7 +21,6 @@ export default function WeekDetail() {
 
   const [examDone, setExamDone] = useState(false);
   const [examScore, setExamScore] = useState(0);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!lesson || !session) return;
@@ -31,13 +29,6 @@ export default function WeekDetail() {
     setExamScore(getExamScore(lesson.week, total));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [week, session]);
-
-  function onPresentationOpen() {
-    if (lesson && isStaff) {
-      recordPresentationUse(lesson.week);
-      setRefreshKey((k) => k + 1);
-    }
-  }
 
   if (!lesson) return <Navigate to="/plan-anual" replace />;
   if (lesson.status === "pending") return <Navigate to="/plan-anual" replace />;
@@ -176,19 +167,22 @@ export default function WeekDetail() {
             </div>
             {lesson.teacherPresentation.status === "available" ? (
               <div className="resource-row__actions">
+                {isStaff && (
+                  <Link to={`/plan-anual/semana-${lesson.week}/presentacion`}>
+                    Proyectar en la aplicación (cuenta para tu preparación)
+                  </Link>
+                )}
                 <a
                   href={lesson.teacherPresentation.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={onPresentationOpen}
                 >
                   Abrir (PDF) ↗
                 </a>
                 {lesson.teacherPresentation.secondaryUrl && (
                   <a
                     href={lesson.teacherPresentation.secondaryUrl}
-                    onClick={onPresentationOpen}
-                  >
+                    >
                     {lesson.teacherPresentation.secondaryLabel ?? "Descargar"}
                   </a>
                 )}
@@ -241,7 +235,7 @@ export default function WeekDetail() {
 
         <section className="week-section">
           <h2>Preparación del maestro</h2>
-          <PreparationPanel week={lesson.week} refreshKey={refreshKey} />
+          <PreparationPanel week={lesson.week} />
 
           {isStaff && (
             <div className="week-exam-cta">

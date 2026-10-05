@@ -10,7 +10,6 @@ import { ChildBoy, ChildGirl } from "../components/characters";
 import { useAuth } from "../auth/AuthContext";
 import { buildGuideSections, GUIDE_SECTION_COUNT } from "../data/guideSections";
 import { getWeekByNumber } from "../services/weekService";
-import { recordPresentationUse } from "../services/preparationService";
 import {
   MIN_SECONDS_PER_SECTION,
   activeSection,
@@ -131,14 +130,6 @@ export default function GuidePrep() {
     setProgress(next);
   }
 
-  function onResourceClick(href: string) {
-    const tp = lesson!.teacherPresentation;
-    if (href === tp.fileUrl || href === tp.secondaryUrl) {
-      recordPresentationUse(lesson!.week);
-      setPrepKey((k) => k + 1);
-    }
-  }
-
   const done = completedCount(progress);
   const finished = allCompleted(progress);
   const pdfHref = `/guias/guia-semana-${lesson.week}.pdf`;
@@ -239,7 +230,7 @@ export default function GuidePrep() {
                 )}
                 {opened && (
                   <div className="guide-step__body">
-                    <GuideBlocks blocks={s.blocks} onLinkClick={onResourceClick} />
+                    <GuideBlocks blocks={s.blocks}  />
                   </div>
                 )}
               </li>
@@ -251,7 +242,7 @@ export default function GuidePrep() {
           <h2>Recursos de esta lección</h2>
           <div className="guide-links">
             {resources.map((r) => (
-              <a key={r.href} href={r.href} target="_blank" rel="noopener noreferrer" onClick={() => onResourceClick(r.href)}>
+              <a key={r.href} href={r.href} target="_blank" rel="noopener noreferrer">
                 {r.label} ↗
               </a>
             ))}

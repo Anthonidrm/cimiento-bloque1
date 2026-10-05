@@ -10,9 +10,11 @@ import WeekDetail from "./pages/WeekDetail";
 import WeekExam from "./pages/WeekExam";
 import ExamReview from "./pages/ExamReview";
 import GuidePrep from "./pages/GuidePrep";
+import PresentationViewer from "./pages/PresentationViewer";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
 import Admin from "./pages/Admin";
+import PastorPanel from "./pages/PastorPanel";
 import StudentHome from "./pages/StudentHome";
 import RequireRole from "./auth/RequireRole";
 import { STAFF_ROLES } from "./auth/types";
@@ -45,9 +47,11 @@ export default function App() {
         <Route path="maestros" element={<RequireRole roles={STAFF_ROLES}><TeacherArea /></RequireRole>} />
         <Route path="mi-progreso" element={<RequireRole roles={STAFF_ROLES}><Progress /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/guia" element={<RequireRole roles={STAFF_ROLES}><GuidePrep /></RequireRole>} />
+        <Route path="plan-anual/:weekSlug/presentacion" element={<RequireRole roles={STAFF_ROLES}><PresentationViewer /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/examen" element={<RequireRole roles={STAFF_ROLES}><WeekExam /></RequireRole>} />
         <Route path="plan-anual/:weekSlug/revision" element={<RequireRole roles={STAFF_ROLES}><ExamReview /></RequireRole>} />
-        <Route path="administracion" element={<RequireRole roles={["ADMINISTRADOR", "PASTOR"]}><Admin /></RequireRole>} />
+        <Route path="administracion" element={<RequireRole roles={["ADMINISTRADOR"]}><Admin /></RequireRole>} />
+        <Route path="pastor" element={<RequireRole roles={["PASTOR", "ADMINISTRADOR"]}><PastorPanel /></RequireRole>} />
         <Route path="estudiante" element={<RequireRole><StudentHome /></RequireRole>} />
         <Route path="*" element={<NotFound />} />
       </Route>
