@@ -106,9 +106,13 @@ as("est1"); const sc = (await S.myScores())[0];
 ok(Number(sc.attendance_pts) === 25 && Number(sc.submission_pts) === 18 && Number(sc.participation_pts) === 25 && Number(sc.total) === 68, "Puntuación 4×25: asistencia 25 + tarea 18 + participación 25 + examen 0 = 68");
 const nts = await R.listNotifications(); ok(nts.some((n) => n.kind === "RESULTADO"), "Recibe la notificación de su calificación");
 await R.markNotificationRead(nts[0].id); ok((await R.listNotifications()).find((n) => n.id === nts[0].id)?.read_at !== null, "Puede marcar la notificación como leída");
-const games = await S.listGames(); await S.saveGameResult(games[0].id, 80, 100, { movimientos: 12 });
+const games = await S.listGames();
+const orderGame = games.find((g) => g.kind === "ORDENAR_PALABRAS" && !g.counts_as_exam)!;
+await S.saveGameResult(orderGame.id, 100, 100, {});
+ok(Number((await S.myScores())[0].exam_pts) === 0, "Un juego que NO cuenta como examen (ordenar) no suma puntos de examen");
+await S.saveGameResult("e0000000-0000-0000-0000-000000000001", 80, 100, { movimientos: 12 });
 ok(Number((await S.myScores())[0].exam_pts) === 20 && Number((await S.myScores())[0].total) === 88, "La prueba lúdica aporta 20 de 25 al examen: total 88");
-ok(await fails(() => S.saveGameResult(games[0].id, 150, 100)), "La puntuación no supera el máximo");
+ok(await fails(() => S.saveGameResult("e0000000-0000-0000-0000-000000000001", 150, 100)), "La puntuación no supera el máximo");
 
 console.log("6) Actividades obligatorias e integración (coronas)");
 as("pastor");
