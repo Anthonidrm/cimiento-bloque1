@@ -13,7 +13,13 @@ export interface CharacterProps {
 }
 
 export const VIEW_W = 200;
-export const VIEW_H = 340;
+/** Lienzo más bajo que antes: el cuerpo se acorta para que parezcan niños de primaria. */
+export const VIEW_Y0 = -8;
+export const VIEW_H = 300;
+/** Cuerpo (tronco, brazos, piernas) comprimido al 80 % de alto, anclado en los hombros. */
+export const BODY_T = "translate(0 128) scale(1 0.8) translate(0 -128)";
+/** Cabeza ligeramente más grande (proporción infantil), anclada en el cuello. */
+export const HEAD_T = "translate(100 118) scale(1.1) translate(-100 -118)";
 export const INK = "#2A1810";
 
 /** Oscurece (f < 0) o aclara (f > 0) un color hexadecimal. */
@@ -119,14 +125,14 @@ export function Arms({
 export function Face({ skin, variant }: { skin: string; variant: "girl" | "boy" }) {
   const g = variant === "girl";
   const shadow = shade(skin, -0.2);
-  const cy = g ? 72 : 74;
-  const rx = g ? 47 : 40;
-  const ry = g ? 45 : 50;
-  const eyeY = g ? 73 : 77;
-  const dx = g ? 19 : 16;
-  const erx = g ? 7.6 : 5.6;
-  const ery = g ? 10 : 7.6;
-  const mouthY = g ? cy + 23 : cy + 25;
+  const cy = 73;
+  const rx = g ? 47 : 43;
+  const ry = g ? 45 : 47;
+  const eyeY = g ? 78 : 80;
+  const dx = g ? 19 : 17;
+  const erx = g ? 8.4 : 6.6;
+  const ery = g ? 10.5 : 8.4;
+  const mouthY = g ? cy + 25 : cy + 26;
 
   const Eye = ({ x, sign }: { x: number; sign: 1 | -1 }) => (
     <g>
@@ -218,7 +224,7 @@ export function SvgShell({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      viewBox={`0 ${VIEW_Y0} ${VIEW_W} ${VIEW_H}`}
       width={width}
       height={size}
       className={className}

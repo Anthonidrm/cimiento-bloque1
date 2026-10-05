@@ -1,8 +1,8 @@
-import { Arms, Face, SvgShell, INK, shade, type CharacterProps } from "./parts";
+import { Arms, Face, SvgShell, INK, shade, BODY_T, HEAD_T, type CharacterProps } from "./parts";
 
 // Basada en la foto de referencia: tez morena oscura, cabello recogido,
 // diadema dorada con moño de flor magenta, camiseta amarilla y jean con parche.
-const SKIN = "#7B4B33";
+const SKIN = "#875B45"; // un poco más clara que antes; sigue siendo piel oscura
 const HAIR = "#241711";
 const TEE = "#F6C945"; // amarillo/dorado de CIMIENTO
 const JEANS = "#4F78B5";
@@ -18,6 +18,7 @@ export default function ChildGirl({
 }: CharacterProps) {
   return (
     <SvgShell size={size} className={className} title={title}>
+      <g transform={BODY_T}>
       {/* piernas: jean con parche a cuadros */}
       <g stroke={JEANS} strokeWidth={23} strokeLinecap="round">
         <line x1={85} y1={210} x2={83} y2={298} />
@@ -44,6 +45,8 @@ export default function ChildGirl({
       <path d="M 86 128 Q 100 142 114 128" stroke={shade(TEE, -0.2)} strokeWidth={4} fill="none" strokeLinecap="round" />
       <rect x={90} y={112} width={20} height={20} rx={6} fill={skin} />
       <Arms pose={pose} skin={skin} sleeve={TEE} spreadRaised={1.22} />
+      </g>
+      <g transform={HEAD_T}>
       <Face skin={skin} variant="girl" />
 
       {/* cabello recogido hacia atrás */}
@@ -65,6 +68,7 @@ export default function ChildGirl({
       </g>
       {/* arete */}
       <circle cx={46} cy={86} r={3} fill="#F4C21E" stroke={INK} strokeWidth={0.8} />
+      </g>
     </SvgShell>
   );
 }

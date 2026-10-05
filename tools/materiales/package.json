@@ -1,0 +1,6 @@
+{
+  "name": "cimiento-materiales",
+  "private": true,
+  "description": "Generadores de materiales imprimibles de CIMIENTO (independiente de la app).",
+  "dependencies": { "pptxgenjs": "^3.12.0" }
+}
