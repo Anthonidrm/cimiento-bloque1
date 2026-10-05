@@ -72,18 +72,14 @@ const a1 = E.getCurrentAttempt(1)!;
 ok(!!a1.completedAt && a1.scorePercent === Math.round((8 / 9) * 100), `Intento 1 completado con 8/9 = ${a1.scorePercent}% (el error inicial cuenta)`);
 ok(E.getExamScore(1, 9) === 89 && P.computePreparation(1).components.find((c) => c.key === "exam")!.earned === (89 / 100) * 30, "El examen aporta 89 % de 30 puntos");
 ok(!E.answerQuestion(1, q1, { optionId: q1.correctOptionId }).ok, "Tras terminar el intento ya no se acepta nada");
-ok(E.canStartNewAttempt(1) && EXAM_CONFIG.maxAttempts === 2, "Queda 1 intento disponible (configurable)");
-E.startAttempt(1);
-for (const q of qs) {
-  if (q.type === "matching") E.answerQuestion(1, q, { pairs: Object.fromEntries(q.pairs!.map((x) => [x.left, x.right])) });
-  else E.answerQuestion(1, q, { optionId: q.correctOptionId });
-}
-ok(E.getExamState(1).attempts.length === 2 && !E.canStartNewAttempt(1), "Con 2 intentos usados no se permite un tercero");
-ok(E.getExamScore(1, 9) === 100, "Política 'best': cuenta el mejor intento (100 %)");
-ok(E.getAllMissedAttempts(1).length === 1, "El error del intento 1 permanece en el historial de errores");
+ok(EXAM_CONFIG.maxAttempts === 1 && !E.canStartNewAttempt(1), "El examen tiene UN SOLO intento: no se puede iniciar otro");
+ok(E.startAttempt(1) === undefined && E.getExamState(1).attempts.length === 1, "Intentar abrir un segundo intento no hace nada");
+ok(E.getExamScore(1, 9) === 89, "La calificación es la del único intento (89 %), con el error inicial incluido");
+ok(E.getAllMissedAttempts(1).length === 1, "El error permanece en el historial de errores");
 const m = E.getQuestionSummaries(1).find((s) => s.questionId === q1.id)!;
-ok(m.totalAttempts === 2 && m.currentlyCorrect && m.missedAttempts.length === 1, "Resumen: 2 intentos, corregida después, 1 error registrado");
-ok(E.getExamState(1).scoreHistory.length === 18, "Se guarda la puntuación tras cada respuesta (18)");
+ok(m.totalAttempts === 1 && !m.currentlyCorrect && m.missedAttempts.length === 1, "Resumen: 1 intento, pregunta incorrecta registrada");
+ok(E.getExamState(1).scoreHistory.length === 9, "Se guarda la puntuación tras cada respuesta (9)");
+ok(qs.filter((q) => q.type === "matching").every((q) => q.needsPastoralReview), "Las preguntas de relación están marcadas para revisión pastoral");
 await login("yely");
 ok(E.getExamState(1).attempts.length === 0, "El examen es independiente por usuario");
 // migración del formato anterior

@@ -8,7 +8,9 @@
 //   "latest" → el último intento completado
 // Dentro de un intento, la primera respuesta a cada pregunta queda registrada
 // y NO se puede cambiar.
+// DECISIÓN CONFIRMADA: el examen del maestro tiene UN SOLO INTENTO. La primera respuesta de cada pregunta
+// queda registrada definitivamente y cuenta en la calificación (también si es incorrecta).
 export const EXAM_CONFIG: { maxAttempts: number; scoring: "first" | "best" | "latest" } = {
-  maxAttempts: 2,
-  scoring: "best",
+  maxAttempts: 1,
+  scoring: "first",
 };

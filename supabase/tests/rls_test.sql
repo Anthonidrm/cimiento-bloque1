@@ -18,6 +18,9 @@ insert into profiles(id, username, display_name, role) values
  ('a0000000-0000-0000-0000-000000000001','admin','Admin','ADMINISTRADOR'), ('a0000000-0000-0000-0000-000000000002','pastor','Pastor','PASTOR'),
  ('a0000000-0000-0000-0000-000000000003','lela','Lela','MAESTRO'),         ('a0000000-0000-0000-0000-000000000004','tefa','Tefa','MAESTRO'),
  ('a0000000-0000-0000-0000-000000000005','est1','Estudiante 1','ESTUDIANTE'), ('a0000000-0000-0000-0000-000000000006','est2','Estudiante 2','ESTUDIANTE');
+insert into student_groups(id, name) values ('d0000000-0000-0000-0000-000000000001', 'Grupo A');
+insert into enrollments(student_id, group_id) values ('a0000000-0000-0000-0000-000000000005','d0000000-0000-0000-0000-000000000001'), ('a0000000-0000-0000-0000-000000000006','d0000000-0000-0000-0000-000000000001');
+insert into group_teachers(group_id, teacher_id) values ('d0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000003');
 insert into teacher_assignments(week, teacher_id, assigned_by) values (1, 'a0000000-0000-0000-0000-000000000003'::uuid, 'a0000000-0000-0000-0000-000000000002'::uuid);
 
 -- 1. Perfiles y roles
@@ -26,7 +29,10 @@ do $$ begin
   perform t.check((select count(*) from profiles) = 1, 'Estudiante: solo ve su propio perfil');
   perform t.check(t.rows(format('update profiles set role = ''ADMINISTRADOR'' where id = %L', 'a0000000-0000-0000-0000-000000000005'::uuid)) = 0, 'Estudiante NO puede cambiarse el rol');
   perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);
-  perform t.check((select count(*) from profiles where role = 'ESTUDIANTE') = 2, 'Maestro ve a los estudiantes');
+  perform t.check((select count(*) from profiles where role = 'ESTUDIANTE') = 2, 'Maestro ve a SUS estudiantes');
+  perform t.as_user('a0000000-0000-0000-0000-000000000004'::uuid);
+  perform t.check((select count(*) from profiles where role = 'ESTUDIANTE') = 0, 'Un maestro sin grupo NO ve estudiantes ajenos');
+  perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);
   perform t.as_user('a0000000-0000-0000-0000-000000000002'::uuid);
   perform t.check(t.rows(format('update profiles set active = false where id = %L', 'a0000000-0000-0000-0000-000000000005'::uuid)) = 0, 'Pastor NO puede desactivar usuarios');
   perform t.check(t.fails(format('insert into profiles(id,username,display_name,role) values (gen_random_uuid(),''x'',''x'',''MAESTRO'')')), 'Pastor NO puede crear usuarios');
@@ -67,28 +73,32 @@ do $$ begin
   perform t.as_user('a0000000-0000-0000-0000-000000000004'::uuid);   perform t.check(t.fails(format('insert into guide_progress(user_id,week,section,seconds) values (%L,1,1,5)', 'a0000000-0000-0000-0000-000000000003'::uuid)), 'Nadie escribe progreso a nombre de otro');
 end $$;
 
--- 5. Examen: la primera respuesta es inmutable
+-- 5. Examen: las respuestas las escribe SOLO el servidor y son inmutables
 insert into exam_attempts(id,user_id,week,attempt_no) values ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000003', 1, 1);
+insert into exam_answers(attempt_id,question_id,selected_option,is_correct) values ('b0000000-0000-0000-0000-000000000001','s1-q1','a',false);
 do $$ begin
   perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);
-  perform t.check(t.rows('insert into exam_answers(attempt_id,question_id,selected_option,is_correct) values (''b0000000-0000-0000-0000-000000000001'',''s1-q1'',''a'',false)') = 1, 'Se registra la respuesta');
+  perform t.check(t.fails('insert into exam_answers(attempt_id,question_id,selected_option,is_correct) values (''b0000000-0000-0000-0000-000000000001'',''s1-q2'',''a'',true)'), 'El maestro NO inserta respuestas directamente (no puede marcarse "correcto")');
+  perform t.check(t.fails('insert into exam_attempts(user_id,week,attempt_no) values (''a0000000-0000-0000-0000-000000000003'',2,1)'), 'El maestro NO crea intentos directamente');
   perform t.check(t.rows('update exam_answers set selected_option = ''b'', is_correct = true') = 0, 'El maestro NO puede cambiar su respuesta registrada');
   perform t.check(t.rows('delete from exam_answers') = 0, 'El maestro NO puede borrarla');
+  perform t.check((select count(*) from exam_answers) = 1, 'Pero sí puede LEER sus respuestas');
   perform t.as_user('a0000000-0000-0000-0000-000000000004'::uuid);
-  perform t.check(t.fails('insert into exam_answers(attempt_id,question_id,selected_option,is_correct) values (''b0000000-0000-0000-0000-000000000001'',''s1-q2'',''a'',true)'), 'Nadie responde en el intento de otro');
+  perform t.check((select count(*) from exam_answers) = 0, 'Otro maestro NO ve las respuestas ajenas');
   perform t.as_user('a0000000-0000-0000-0000-000000000002'::uuid);
   perform t.check((select count(*) from exam_answers) = 1, 'Pastor puede revisar las respuestas');
 end $$;
-select t.check(t.fails('update exam_answers set is_correct = true'), 'Trigger: ni siquiera con privilegios altos se modifica una respuesta');
+select t.check(t.fails('update exam_answers set is_correct = true'), 'Disparador: ni con privilegios altos se modifica una respuesta');
 select t.check((select selected_option from exam_answers) = 'a' and not (select is_correct from exam_answers), 'La primera respuesta (incorrecta) sigue intacta');
+select t.check(t.fails('insert into exam_attempts(user_id,week,attempt_no) values (''a0000000-0000-0000-0000-000000000003'',3,2)'), 'Restricción: el examen tiene UN solo intento (attempt_no = 1)');
 
 -- 6. Preparación: porcentaje 50/30/20
-insert into exam_attempts(user_id,week,attempt_no,completed_at,score_percent) values ('a0000000-0000-0000-0000-000000000003', 1, 2, now(), 89), ('a0000000-0000-0000-0000-000000000003', 1, 3, now(), 100);
+update exam_attempts set completed_at = now(), score_percent = 100 where id = 'b0000000-0000-0000-0000-000000000001';
 insert into presentation_usage(user_id,week,slide,seconds) select 'a0000000-0000-0000-0000-000000000003', 1, s, case when s <= 4 then 5 when s = 5 then 4 else 0 end from generate_series(1,5) s;
 do $$ declare r record; begin
   select * into r from teacher_prep('a0000000-0000-0000-0000-000000000003', 1);
   perform t.check(r.guide_pts = 26.1, 'Guía: 12 de 23 apartados = 26,1 de 50 (no se regala)');
-  perform t.check(r.exam_pts = 30.0, 'Examen: mejor intento 100 % = 30 de 30');
+  perform t.check(r.exam_pts = 30.0, 'Examen: único intento con 100 % = 30 de 30');
   perform t.check(r.presentation_pts = 8.9, 'Presentación: 4 de 9 diapositivas (≥5 s) = 8,9 de 20; la de 4 s no cuenta');
   perform t.check(r.total_pts = 65.0, 'Total de preparación = 65,0');
 end $$;
@@ -106,7 +116,12 @@ do $$ begin
   perform t.as_user('a0000000-0000-0000-0000-000000000006'::uuid);   perform t.check((select count(*) from submissions) = 0, 'Otro estudiante NO ve la entrega ajena');
   perform t.as_user('a0000000-0000-0000-0000-000000000004'::uuid);   perform t.check((select count(*) from submissions) = 0, 'Maestro NO asignado no ve entregas');
   perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);   perform t.check((select count(*) from submissions) = 1, 'Maestro asignado SÍ ve la entrega');
-  perform t.check(t.rows('update submissions set teacher_comment = ''Muy bien'', grade = 24, graded_by = ' || quote_literal('a0000000-0000-0000-0000-000000000003'::uuid) || ', graded_at = now()') = 1, 'Maestro asignado comenta y califica');
+  perform t.check(t.rows('update submissions set grade = 25') = 0, 'El maestro NO edita la entrega directamente (solo califica con la función)');
+  perform grade_submission((select id from submissions limit 1), 24, 'Muy bien');
+  perform t.check((select grade from submissions limit 1) = 24 and (select teacher_comment from submissions limit 1) = 'Muy bien', 'Maestro asignado comenta y califica con grade_submission()');
+  perform t.as_user('a0000000-0000-0000-0000-000000000004'::uuid);
+  perform t.check(t.fails('select grade_submission((select id from submissions limit 1), 1, null)') , 'Un maestro NO asignado no califica');
+  perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);
 end $$;
 
 -- 8. Recursos reemplazables
@@ -141,7 +156,7 @@ select t.check((select generate_assignment_alerts()) = 2, 'Alerta de lección si
 select t.check((select generate_assignment_alerts()) = 0, 'Las alertas no se repiten');
 do $$ begin
   perform t.as_user('a0000000-0000-0000-0000-000000000002'::uuid); perform t.check((select count(*) from notifications) = 1, 'El Pastor ve su notificación');
-  perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);   perform t.check((select count(*) from notifications) = 0, 'El maestro no ve las notificaciones de otros');
+  perform t.as_user('a0000000-0000-0000-0000-000000000003'::uuid);   perform t.check((select count(*) from notifications where kind = 'FALTA_MAESTRO') = 0 and (select count(*) from notifications) >= 1, 'El maestro solo ve SUS notificaciones (no las alertas de Pastor/Admin)');
   perform t.check(t.fails('select generate_assignment_alerts()'), 'Ningún usuario puede disparar las alertas a mano');
 end $$;
 
@@ -188,5 +203,3 @@ do $$ begin
   perform t.as_user('a0000000-0000-0000-0000-000000000006'::uuid); perform t.check((select count(*) from crowns where student_id = 'a0000000-0000-0000-0000-000000000005'::uuid) = 0, 'Otro estudiante no ve las coronas ajenas');
 end $$;
 
-select case when count(*) filter (where not ok) = 0 then 'TODAS LAS PRUEBAS PASARON' else 'HAY FALLOS' end || ' — ' || count(*) filter (where ok) || ' correctas, ' || count(*) filter (where not ok) || ' fallidas' as resumen from t.results;
-select '  ❌ ' || msg as fallo from t.results where not ok;

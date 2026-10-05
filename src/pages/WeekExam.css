@@ -234,3 +234,12 @@
 @media (max-width: 640px) {
   .exam-match__row { grid-template-columns: 1fr; }
 }
+.exam-question__review {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8a5a00;
+  background: var(--gold-100);
+  border: 1px solid var(--gold-500);
+  border-radius: 999px;
+  padding: 2px 9px;
+}

@@ -189,6 +189,7 @@ export const week01: WeekGuide = {
     {
       id: "s1-q9",
       type: "matching",
+      needsPastoralReview: true,
       prompt:
         "Relaciona cada elemento con su significado según la base doctrinal de la lección.",
       options: [],

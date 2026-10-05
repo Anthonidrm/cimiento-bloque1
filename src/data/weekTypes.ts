@@ -31,6 +31,8 @@ export interface ExamQuestion {
   correctOptionId: string;
   /** Solo para type "matching": pares correctos (izquierda ↔ derecha). `options` queda vacío. */
   pairs?: { left: string; right: string }[];
+  /** Pregunta pendiente de revisión pastoral (se muestra una marca visible hasta que se revise). */
+  needsPastoralReview?: boolean;
   explanation: string; // se muestra siempre, en correcto e incorrecto
 }
 

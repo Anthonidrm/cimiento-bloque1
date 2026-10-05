@@ -44,7 +44,7 @@ for (const [role, allowed] of Object.entries(ALLOWED)) {
 
 console.log("— Detalles —");
 as("MAESTRO", "lela"); let h = render("/plan-anual/semana-1/examen");
-ok(h.includes("Relación") && h.includes("Confirmar relación") && h.includes("Intento <strong>1</strong> de 2"), "Examen: pregunta de relación, botón de confirmar e indicador de intentos");
+ok(h.includes("Relación") && h.includes("Pendiente de revisión pastoral") && h.includes("Confirmar relación") && h.includes("Intento único"), "Examen: pregunta de relación (con marca de revisión pastoral), botón de confirmar e intento único");
 ok(h.includes("no se puede cambiar"), "Examen: avisa que la primera respuesta no se puede cambiar");
 h = render("/plan-anual/semana-1/presentacion"); ok(h.includes("/presentaciones/semana-1/slide-1.jpg") && h.includes("0 de 9"), "Visor: muestra la diapositiva 1 y el uso registrado");
 h = render("/plan-anual/semana-2"); ok(h.includes("Proyectar en la aplicación"), "Semana: ofrece proyectar en la app (cuenta para la preparación)");

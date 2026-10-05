@@ -85,11 +85,16 @@ export default function WeekExam() {
         <p className="page-header__desc">
           Responde cada pregunta. Verás de inmediato si acertaste, con la respuesta correcta y la
           explicación. <strong>La primera respuesta que registres no se puede cambiar</strong> y
-          cuenta en tu calificación. Tienes {EXAM_CONFIG.maxAttempts} intentos del examen completo;{" "}
-          {SCORING_TEXT[EXAM_CONFIG.scoring]}. Todos los intentos y errores quedan en tu historial.
+          cuenta en tu calificación, también si es incorrecta.{" "}
+          {EXAM_CONFIG.maxAttempts === 1 ? (
+            <strong>Este examen tiene un único intento.</strong>
+          ) : (
+            <>Tienes {EXAM_CONFIG.maxAttempts} intentos; {SCORING_TEXT[EXAM_CONFIG.scoring]}.</>
+          )}{" "}
+          Tus respuestas y errores quedan en tu historial.
         </p>
         <p className="exam-score-banner">
-          Intento <strong>{attemptNumber}</strong> de {EXAM_CONFIG.maxAttempts}
+          {EXAM_CONFIG.maxAttempts === 1 ? "Intento único" : <>Intento <strong>{attemptNumber}</strong> de {EXAM_CONFIG.maxAttempts}</>}
           {attempt && !attemptDone && (
             <> · respondidas {Object.keys(answers).length} de {total}</>
           )}
@@ -110,6 +115,7 @@ export default function WeekExam() {
               <div className="exam-question__head">
                 <span className="exam-question__num">{i + 1}</span>
                 <span className="exam-question__type">{TYPE_LABELS[q.type] ?? q.type}</span>
+                {q.needsPastoralReview && <span className="exam-question__review">Pendiente de revisión pastoral</span>}
                 {answer && <span className="exam-question__lock">🔒 respuesta registrada</span>}
               </div>
               <p className="exam-question__prompt">{q.prompt}</p>
@@ -197,7 +203,9 @@ export default function WeekExam() {
       {attemptDone && (
         <div className="exam-done">
           <p>
-            Intento {attemptNumber} terminado: <strong>{getCurrentAttemptScore(lesson.week, total)}%</strong>.
+            {EXAM_CONFIG.maxAttempts === 1 ? "Examen terminado" : `Intento ${attemptNumber} terminado`}:{" "}
+            <strong>{getCurrentAttemptScore(lesson.week, total)}%</strong>. Quedó registrado con tu usuario, la lección, la fecha, tus
+            respuestas, las respuestas correctas y tu puntuación.
           </p>
           {canRetry ? (
             <button
@@ -213,7 +221,7 @@ export default function WeekExam() {
               Iniciar intento {used + 1} de {EXAM_CONFIG.maxAttempts}
             </button>
           ) : (
-            <p>Usaste los {EXAM_CONFIG.maxAttempts} intentos disponibles.</p>
+            <p>{EXAM_CONFIG.maxAttempts === 1 ? "Este examen tiene un único intento: su resultado ya no puede repetirse." : `Usaste los ${EXAM_CONFIG.maxAttempts} intentos disponibles.`}</p>
           )}
         </div>
       )}
