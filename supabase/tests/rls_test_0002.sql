@@ -197,3 +197,17 @@ do $$ begin
   perform t.as_user(t.u(5));
   perform t.check((select count(*) from v_teacher_progress) = 0 and (select count(distinct student_id) from v_student_progress) = 1, 'El estudiante no ve maestros y solo ve su propio progreso');
 end $$;
+
+-- ===== Ayudas para la aplicación =====
+do $$ begin
+  perform t.as_user(t.u(5));
+  perform t.check((select role from my_profile()) = 'ESTUDIANTE' and (select id from my_profile()) = t.u(5), 'my_profile(): cada usuario obtiene su propio perfil y rol');
+  perform t.check((select teacher_name from v_lessons where week = 11) = 'Lela' and (select module_title from v_lessons where week = 11) = 'Dios me ama', 'El estudiante ve el MAESTRO ASIGNADO de cada lección (nombre) y su módulo');
+  perform t.check((select count(*) from v_lessons) = 52, 'v_lessons muestra las 52 lecciones');
+  perform t.as_user(t.u(8));
+  perform t.check((select count(*) from my_profile()) = 0 and (select count(*) from v_lessons) = 0, 'Un usuario DESACTIVADO no obtiene perfil ni datos');
+  perform t.as_user(t.u(3));
+  perform t.check(t.fails('insert into class_photos(week,storage_path,uploaded_by) values (11,''ruta/otra.jpg'',t.u(4))'), 'No se puede subir una foto a nombre de otro usuario');
+  insert into class_photos(week,storage_path) values (11,'ruta/sellada.jpg');
+  perform t.check((select uploaded_by from class_photos where storage_path = 'ruta/sellada.jpg') = t.u(3), 'uploaded_by lo pone el servidor (auth.uid())');
+end $$;

@@ -1,0 +1,5 @@
+-- Correos de destino del informe de clase. EJECUTAR EN EL SQL EDITOR DE SUPABASE con las direcciones reales
+-- (no se guardan en el repositorio). El envío real lo hace un servicio de correo; aquí solo se configuran destinos.
+insert into app_config (key, value, note)
+values ('report_recipients', '{"pastor":"CORREO_DEL_PASTOR","administrador":"CORREO_DEL_ADMINISTRADOR"}', 'Destinos del informe de clase')
+on conflict (key) do update set value = excluded.value;

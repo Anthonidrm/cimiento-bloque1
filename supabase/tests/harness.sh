@@ -10,6 +10,8 @@ case "${1:-up}" in
     su postgres -c "psql -v ON_ERROR_STOP=1 -q -d postgres -c 'drop database if exists $DB' -c 'create database $DB'"
     su postgres -c "psql -v ON_ERROR_STOP=1 -q -d $DB -f $PWD/stub_auth.sql"
     for m in ../migrations/*.sql; do su postgres -c "psql -v ON_ERROR_STOP=1 -q -d $DB -f $PWD/$m"; done
+    for sd in ../seed/*.sql; do su postgres -c "psql -v ON_ERROR_STOP=1 -q -d $DB -f $PWD/$sd"; done
+    [ "${WITH_USERS:-0}" = "1" ] && su postgres -c "psql -v ON_ERROR_STOP=1 -q -d $DB -f $PWD/seed_integration.sql" || true
     cat > /tmp/pgrst.conf << CONF
 db-uri = "postgres://authenticator:authpass@127.0.0.1:5432/$DB"
 db-schemas = "public"

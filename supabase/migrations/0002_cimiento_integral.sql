@@ -413,8 +413,36 @@ select cs.id, cs.week, cs.group_id, cs.teacher_id, t.display_name as teacher_nam
        exists (select 1 from class_reports r where r.session_id = cs.id) as has_report
 from class_sessions cs join profiles t on t.id = cs.teacher_id;
 
+-- ---------- Ayudas para la aplicación ----------
+create function my_profile() returns setof profiles language sql stable security definer set search_path = public as $$
+  select * from profiles where id = auth.uid() and active
+$$;
+-- Lecciones con su maestro asignado: visible para TODOS los usuarios activos (el estudiante ve quién es su maestro)
+create view v_lessons as
+select l.week, l.title, l.module_id, m.title as module_title, l.developed,
+       a.teacher_id, p.display_name as teacher_name, a.assigned_at, s.status as assignment_status, s.days_late
+from lessons l
+join modules m on m.id = l.module_id
+left join teacher_assignments a on a.week = l.week
+left join profiles p on p.id = a.teacher_id
+left join v_assignment_status s on s.week = l.week
+where app_role() is not null;
+
+-- Quién lo hizo lo pone el servidor (no se confía en lo que envíe el navegador)
+alter table attendance               alter column recorded_by   set default auth.uid();
+alter table assignments              alter column created_by    set default auth.uid();
+alter table mandatory_activities     alter column created_by    set default auth.uid();
+alter table class_photos             alter column uploaded_by   set default auth.uid();
+alter table resource_versions        alter column uploaded_by   set default auth.uid();
+alter table integration_assignments  alter column assigned_by   set default auth.uid();
+alter table integration_participations alter column registered_by set default auth.uid();
+alter table activity_completions     alter column teacher_id    set default auth.uid();
+alter table submissions              alter column student_id    set default auth.uid();
+alter table game_results             alter column student_id    set default auth.uid();
+alter table activity_submissions     alter column student_id    set default auth.uid();
+
 -- ---------- Privilegios ----------
 grant select, insert, update, delete on all tables in schema public to authenticated;
 revoke all on all tables in schema public from anon;
-grant execute on function exam_answer(int, text, text, jsonb), guide_add_seconds(int, int, int), presentation_add_seconds(int, int, int, uuid),
+grant execute on function my_profile(), exam_answer(int, text, text, jsonb), guide_add_seconds(int, int, int), presentation_add_seconds(int, int, int, uuid),
   session_event(uuid, text, jsonb), session_note(uuid, text), set_participation(uuid, int, int), grade_submission(uuid, int, text) to authenticated;
