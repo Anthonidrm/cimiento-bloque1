@@ -14,7 +14,10 @@ Estructura única: `Plan Anual → Módulo → Semana → Lección → Recursos`
 - **Examen del maestro** por lección, con historial completo de intentos y errores, por usuario.
 - **Personajes oficiales**: `ChildGirl` y `ChildBoy` (`src/components/characters/`), con tamaño y
   poses (`stand`, `wave`, `cheer`, `point`). Imágenes SVG en `public/personajes/`.
-- **Roles**: Administrador, Pastor, Maestro, Estudiante.
+- **Roles**: Administrador, Pastor, Maestro, Estudiante. **Sin sesión solo se ve `/login`** (y `/sobre-cimiento`); cada rol
+  entra a su área al autenticarse.
+- **Examen**: la primera respuesta queda registrada y no se cambia; intentos limitados; preguntas de relación.
+- **Presentación**: se proyecta desde la app y el 20 % se calcula por uso real.
 
 ## Roles y acceso
 
@@ -35,6 +38,17 @@ seguridad fuerte: las cuentas (con contraseñas protegidas por PBKDF2) viajan de
 cambios o restablecimientos de contraseña se guardan **solo en el navegador donde se hacen**. La autenticación
 real, el restablecimiento entre dispositivos y la protección efectiva del contenido llegarán con el backend
 (Supabase). Se recomienda cambiar las contraseñas iniciales en el primer ingreso.
+
+## Herramientas y pruebas
+
+- `tools/materiales/` — regenera presentaciones, hojas de trabajo, hojas para colorear, tarjetas de versículo y guías en PDF
+  a partir de los datos de la app (`./construir.sh`). No afecta al build de la app.
+- `tools/pruebas/` — pruebas de lógica y de rutas por rol (ver el encabezado de cada archivo).
+- `supabase/` — **propuesta** de base de datos y permisos (no aplicada) con 71 pruebas contra PostgreSQL
+  (`supabase/tests/run.sh`). Ver [`docs/BACKEND_PROPUESTA.md`](docs/BACKEND_PROPUESTA.md).
+
+> Verificación de tipos: usar `npx tsc -p tsconfig.app.json --noEmit` (o `npm run build`). `npx tsc --noEmit` a secas no
+> revisa nada porque `tsconfig.json` es de tipo "solución".
 
 ## Pendientes
 
