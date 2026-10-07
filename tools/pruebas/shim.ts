@@ -1,4 +1,6 @@
 // localStorage y document simulados para ejecutar la lógica y el renderizado en Node.
+import { allowLocalForTests } from "../../src/backend/config";
+allowLocalForTests(true); // las pruebas de lógica/rutas ejercitan el modo local de desarrollo
 export const store = new Map<string, string>();
 (globalThis as any).localStorage = {
   getItem: (k: string) => (store.has(k) ? store.get(k)! : null),

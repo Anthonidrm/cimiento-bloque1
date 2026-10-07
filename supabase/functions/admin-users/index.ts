@@ -1,6 +1,6 @@
 // Edge Function `admin-users` (Deno). ÚNICO lugar donde se usa la clave service_role.
 // Solo el ADMINISTRADOR puede llamarla. El navegador nunca ve contraseñas ni la clave de servicio.
-// Acciones: create | update | reset_password | remove_access
+// Acciones: ping | create | update | reset_password | remove_access
 // ESTADO: escrita y revisada, NO probada contra un proyecto Supabase real (no hay cuenta todavía).
 // Secretos requeridos (Supabase → Edge Functions → Secrets): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 // Opcional: AUTH_EMAIL_DOMAIN (por defecto "cimiento.app"; debe coincidir con VITE_AUTH_EMAIL_DOMAIN del front).
@@ -30,6 +30,9 @@ Deno.serve(async (req) => {
     const ban = (id: string, active: boolean) => admin.auth.admin.updateUserById(id, { ban_duration: active ? "none" : "876000h" });
 
     switch (body.action) {
+      case "ping":
+        // Diagnóstico: confirma que la función está desplegada y con qué dominio interno trabaja (debe ser igual a VITE_AUTH_EMAIL_DOMAIN).
+        return json({ ok: true, service: "admin-users", emailDomain: domain });
       case "create": {
         const username = String(body.username ?? "").trim().toLowerCase();
         if (!/^[a-z0-9._-]{3,32}$/.test(username)) return json({ error: "Usuario: 3–32 caracteres (letras, números, . _ -)." }, 400);

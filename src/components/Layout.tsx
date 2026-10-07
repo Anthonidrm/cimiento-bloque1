@@ -4,10 +4,15 @@ import Footer from "./Footer";
 import ErrorBoundary from "./ErrorBoundary";
 import { useAuth } from "../auth/AuthContext";
 import { layoutRedirect } from "../auth/landing";
+import { isBackendConfigured, localModeAllowed } from "../backend/config";
+import SetupRequired from "./SetupRequired";
 
 export default function Layout() {
   const { session, loading } = useAuth();
   const { pathname } = useLocation();
+
+  // Publicado sin servidor: no se ofrece un modo local que parezca funcional.
+  if (!isBackendConfigured() && !localModeAllowed()) return <SetupRequired />;
 
   if (loading) return <p className="container page" role="status">Cargando…</p>;
 

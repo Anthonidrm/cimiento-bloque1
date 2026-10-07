@@ -8,11 +8,27 @@ do $$ begin
   grant anon, authenticated, service_role to authenticator;
 end $$;
 create schema auth;
-create table auth.users (id uuid primary key, email text);
+-- Réplica de las columnas principales de auth.users de Supabase.
+create table auth.users (
+  instance_id uuid, id uuid primary key, aud varchar(255), role varchar(255), email varchar(255) unique, encrypted_password varchar(255),
+  email_confirmed_at timestamptz, raw_app_meta_data jsonb, raw_user_meta_data jsonb, is_super_admin boolean,
+  created_at timestamptz default now(), updated_at timestamptz default now(), banned_until timestamptz
+);
 -- Igual que Supabase: lee el "sub" del JWT (PostgREST lo expone en request.jwt.claims).
 create function auth.uid() returns uuid language sql stable as $$
   select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''),
                   (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
+
+create function auth.role() returns text language sql stable as $$
+  select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')) $$;
+create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
+
+-- Igual que en Supabase: TODO objeto que cree `postgres` en `public` recibe permisos automáticos para anon, authenticated y service_role
+-- (y las funciones son ejecutables por PUBLIC). Sin esto, las pruebas no detectarían objetos expuestos por defecto.
+grant usage on schema public to anon, authenticated, service_role;
+alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 
 -- Réplica mínima del esquema de Almacenamiento de Supabase (en Supabase real ya existe).
 create schema storage;

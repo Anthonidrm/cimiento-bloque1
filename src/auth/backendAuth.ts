@@ -15,7 +15,12 @@ function toSession(p: Profile): Session {
 export async function backendLogin(username: string, password: string): Promise<{ ok: true; session: Session } | { ok: false; error: string }> {
   const generic = { ok: false as const, error: "Usuario o contraseña incorrectos." };
   const { error } = await getClient().auth.signInWithPassword({ email: usernameToEmail(username), password });
-  if (error) return generic;
+  if (error) {
+    const e = error as { status?: number; code?: string };
+    if (e.code === "user_banned") return { ok: false, error: "Tu acceso está desactivado. Habla con el Administrador." };
+    if (e.status === 400) return generic; // credenciales incorrectas (mensaje genérico: no revela qué usuarios existen)
+    return { ok: false, error: "No se pudo conectar con el servidor. Revisa que la URL y la clave de Supabase de la aplicación sean correctas, o inténtalo de nuevo." };
+  }
   const profile = await getMyProfile();
   if (!profile || !profile.active) {
     await getClient().auth.signOut();

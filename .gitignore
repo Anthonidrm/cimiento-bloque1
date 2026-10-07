@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secretos y archivos privados: NUNCA al repositorio
+PRIVADO_*
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+*.pem

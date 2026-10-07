@@ -6,6 +6,7 @@ create function t.as_user(u uuid) returns void language plpgsql as $$ begin perf
 create function t.fails(q text) returns boolean language plpgsql as $$ begin execute q; return false; exception when others then return true; end $$;
 create function t.rows(q text) returns int language plpgsql as $$ declare n int; begin execute q; get diagnostics n = row_count; return n; end $$;
 grant usage on schema t to authenticated, anon;
+alter default privileges in schema t grant execute on functions to authenticated, anon;   -- las funciones auxiliares futuras (t.u, …) siguen siendo ejecutables
 grant all on all tables in schema t to authenticated, anon;
 grant execute on all functions in schema t to authenticated, anon;
 

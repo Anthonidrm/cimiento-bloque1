@@ -1,8 +1,6 @@
 # Backend (Supabase) — CIMIENTO
 
-**Estado:** diseñado, implementado en la app y probado contra PostgreSQL + PostgREST reales. **No está aplicado a ningún proyecto
-Supabase** (no existe la cuenta todavía). Auth y Storage se probaron con **simuladores**; las Edge Functions están escritas y revisadas
-pero **no probadas**. Nada de lo multiusuario se simula con `localStorage`.
+**Estado:** implementado en la app y probado contra PostgreSQL real y contra el código real de la app y de la función `admin-users`. **No está aplicado a ningún proyecto Supabase real** (no existe todavía): las pruebas usan simuladores solo de **Supabase Auth y Storage**, y las funciones de servidor nunca se han ejecutado en Supabase. Nada multiusuario se simula con `localStorage`. Guía de puesta en marcha: README.
 
 ## Migraciones (solo crean objetos; ninguna borra nada)
 | Archivo | Contenido |
@@ -14,6 +12,9 @@ pero **no probadas**. Nada de lo multiusuario se simula con `localStorage`.
 | `0005_cimiento_reemplazo_recursos.sql` | Corrige que el Pastor no podía reemplazar recursos subidos por otra persona |
 | `0006_cimiento_pesos_preparacion.sql` | Pesos de preparación 45/25/15/15 (siempre suman 100). Su definición de "actividades obligatorias" quedó superada por la 0007 |
 | `0007_cimiento_actividades_obligatorias_maestro.sql` | Las actividades obligatorias DEL MAESTRO (15 %): inicio y finalización de clase + pase de lista. `ended_by` en las clases, `teacher_prep` y `v_teacher_progress` con esos dos componentes |
+| `0008_cimiento_endurecimiento_y_diagnostico.sql` | **Seguridad real de Supabase:** `anon` sin acceso a nada de `public` (ni a futuro); funciones internas (`notify`, `recompute_lesson_score`, alertas, recordatorios) solo para el servidor; `teacher_prep` solo devuelve la preparación propia (staff: la de cualquiera); `cimiento_health()` para el Diagnóstico del Administrador |
+
+Despliegue sin instalar nada: `supabase/despliegue/1_migraciones.sql` (todas las migraciones en un archivo, una transacción), `2_semillas.sql` y `3_primer_administrador.sql` — se regeneran con `tools/backend/empaquetar_sql.sh` y las pruebas verifican que no se desfasen.
 
 Semillas (`supabase/seed/`): títulos de lecciones y claves del examen (generadas desde los datos de la app), juegos del versículo,
 y un ejemplo de destinatarios de informes (las direcciones reales **no** se guardan en el repositorio).
@@ -21,7 +22,7 @@ y un ejemplo de destinatarios de informes (las direcciones reales **no** se guar
 ## Autenticación
 - **Supabase Auth** guarda las contraseñas con hash; `profiles` guarda perfil y rol. Acceso por nombre de usuario → correo interno
   (`usuario@VITE_AUTH_EMAIL_DOMAIN`).
-- Con backend la sesión vive **en memoria** (no se lee de `localStorage`); el rol sale de `profiles` en el servidor.
+- Con backend el login es Supabase Auth: la app guarda solo el token de sesión que emite Supabase (no se puede falsificar) y el rol sale de `profiles` en el servidor; los permisos los aplica la base de datos.
 - **Primer acceso:** `must_change_password` obliga a definir la contraseña antes de usar la app (`complete_first_access()`).
 - **Administrador** (Edge Function `admin-users`, única que usa `service_role`): crear usuario, cambiar rol, activar/desactivar,
   quitar acceso, restablecer contraseña temporal. Nunca ve la contraseña actual. **El Pastor no puede.**
@@ -71,8 +72,8 @@ Rutas convenidas (las usan las políticas): `recursos/{audiencia}/{semana}/{tipo
 Migración desde `public/`: `tools/backend/subir_recursos.ts` (60 archivos: 4 guías, 20 materiales, 36 diapositivas).
 
 ## Pruebas
-242 pruebas SQL (`supabase/tests/run.sh`) · 61 de integración y 89 de extremo a extremo (`supabase/tests/e2e.sh`).
-Detalle en el README. Lo **no** probado: Supabase Auth real, Storage real (solo sus políticas en SQL), Edge Functions, envío de correo.
+268 pruebas SQL (`supabase/tests/run.sh`, incluye ejecutar el archivo único de despliegue en una transacción sobre una base limpia) · 69 de integración · 92 de extremo a extremo · 38 de la función `admin-users` (su código real) (`supabase/tests/e2e.sh`).
+Detalle en el README. Lo **no** probado: Supabase Auth real, Storage real (solo sus políticas en SQL), las Edge Functions ejecutándose en Supabase (su código sí se probó), el envío de correo.
 
 ## Lo que sigue necesitando decisión o cuenta externa
 Proyecto Supabase y primer Administrador · proveedor de correo · fuente oficial de los temas 5–52 · confirmar que el versículo completado

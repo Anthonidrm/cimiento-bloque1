@@ -1,7 +1,7 @@
 # PENDIENTES — PRÓXIMAS FASES
 
-> **Estado de la rama `feature/sistema-integral-fase-a-b`.** Leyenda: ✅ implementado y probado (con simuladores de Auth y Storage) ·
-> ◐ parcial · ⛔ depende de algo externo. **Nada está aplicado a un Supabase real todavía.**
+> **Estado de la rama `feature/sistema-integral-fase-a-b`.** Leyenda: ✅ implementado y probado (con simuladores de Auth y Storage) · ◐ parcial · ⛔ depende de algo externo.
+> **Falta lo único que depende de ti: crear y configurar el proyecto Supabase y Vercel (README) y hacer la prueba multidispositivo (`PRUEBA_MULTIDISPOSITIVO.md`).**
 
 | Id | Pendiente | Estado |
 |----|-----------|--------|

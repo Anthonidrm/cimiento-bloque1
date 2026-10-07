@@ -142,4 +142,15 @@ as("pastor"); const all = await T.studentProgress(); ok(all.length === 2 && all.
 as("lela"); ok((await T.studentProgress()).length === 2, "El maestro ve el progreso de sus estudiantes");
 as("est2"); ok((await T.studentProgress()).length === 1 && (await T.teacherProgress()).length === 0, "El estudiante no ve a otros estudiantes ni a los maestros");
 ok((await R.listResources()).length === 0, "Recursos: consulta funcional (la carga de archivos requiere Storage real)");
+
+console.log("8) Diagnóstico del servidor y visitante sin sesión");
+const HL = await import("../../src/backend/health");
+as("admin"); const hr = await HL.cimientoHealth();
+ok(hr.ok === true && hr.checks.filter((c) => c.required).every((c) => c.ok), `El Administrador ve el diagnóstico y todo lo obligatorio está en orden (${hr.checks.filter((c) => c.ok).length}/${hr.checks.length} comprobaciones)`);
+ok(hr.checks.some((c) => /anon/.test(c.name) && c.ok) && hr.checks.some((c) => /RLS/.test(c.name) && c.ok), "El diagnóstico confirma RLS activo y anon sin acceso");
+for (const who of ["pastor", "lela", "est1"] as const) { as(who); ok(await fails(() => HL.cimientoHealth()), `${who}: NO puede ver el diagnóstico`); }
+as("anon");
+ok(await fails(() => T.listLessons()) && await fails(() => H.getMyProfile()) && await fails(() => P.myPrep(uid(3), 1)), "Un visitante sin sesión (anon) no lee lecciones, perfiles ni preparación");
+as("est1"); ok((await P.myPrep(uid(3), 1)) === undefined, "Un estudiante NO obtiene la preparación de un maestro por RPC");
+as("lela"); ok((await P.myPrep(uid(3), 1)) !== undefined, "El maestro sí obtiene la suya");
 done();

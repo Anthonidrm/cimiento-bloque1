@@ -8,6 +8,7 @@ import { UsersManager, GroupsManager } from "../components/panels/UsersManager";
 import { ResourcesManager } from "../components/panels/ResourcesPanel";
 import { ActivitiesPanel } from "../components/panels/ActivitiesPanel";
 import { NotificationsPanel, ChangeLogPanel, LessonsTable, PastoralReviewPanel } from "../components/panels/ExtrasPanels";
+import DiagnosticPanel from "../components/panels/DiagnosticPanel";
 import { useAuth } from "../auth/AuthContext";
 import { ROLE_LABELS } from "../auth/types";
 import AreaSections, { type AreaSection } from "../components/AreaSections";
@@ -116,7 +117,7 @@ const TABS = [
   { id: "lecciones", label: "Lecciones" }, { id: "asignaciones", label: "Asignaciones" }, { id: "prog-maestros", label: "Progreso maestros" },
   { id: "prog-estudiantes", label: "Progreso estudiantes" }, { id: "recursos", label: "Recursos" }, { id: "clases", label: "Clases" },
   { id: "actividades", label: "Actividades" }, { id: "reportes", label: "Reportes" }, { id: "historial", label: "Historial de cambios" },
-  { id: "revision", label: "Revisión pastoral" }, { id: "notificaciones", label: "Notificaciones" },
+  { id: "revision", label: "Revisión pastoral" }, { id: "notificaciones", label: "Notificaciones" }, { id: "diagnostico", label: "Diagnóstico" },
 ];
 
 /** Administración (solo Administrador). Con backend: panel completo; sin backend: vista local y qué falta. */
@@ -155,6 +156,7 @@ export default function Admin() {
       {tab === "historial" && <ChangeLogPanel />}
       {tab === "revision" && <PastoralReviewPanel />}
       {tab === "notificaciones" && <NotificationsPanel />}
+      {tab === "diagnostico" && <DiagnosticPanel />}
     </div>
   );
 }

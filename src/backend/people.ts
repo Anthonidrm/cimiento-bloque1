@@ -14,6 +14,7 @@ export async function listProfiles(role?: Role): Promise<Profile[]> {
 
 // --- Administración de usuarios: requiere la Edge Function `admin-users` (usa service_role en el servidor) ---
 type AdminAction =
+  | { action: "ping" }
   | { action: "create"; username: string; displayName: string; role: Role; password: string }
   | { action: "update"; id: string; role?: Role; displayName?: string; active?: boolean }
   | { action: "reset_password"; id: string; password: string }
@@ -21,13 +22,23 @@ type AdminAction =
 
 async function admin(body: AdminAction) {
   const { data, error } = await getClient().functions.invoke("admin-users", { body });
-  if (error) throw new Error(error.message);
+  if (error) {
+    // supabase-js oculta el motivo real tras "non-2xx"; la función lo devuelve en el cuerpo ({ error: "..." }).
+    let msg = error.message;
+    const ctx = (error as { context?: Response }).context;
+    if (ctx && typeof ctx.json === "function") {
+      try { const b = await ctx.json(); if (b?.error) msg = String(b.error); } catch { /* sin cuerpo legible */ }
+    }
+    throw new Error(msg);
+  }
   if (data && (data as { error?: string }).error) throw new Error((data as { error: string }).error);
-  return data as { ok: true; id?: string };
+  return data as { ok: true; id?: string; emailDomain?: string };
 }
 export const adminCreateUser = (u: { username: string; displayName: string; role: Role; password: string }) => admin({ action: "create", ...u });
 export const adminUpdateUser = (id: string, patch: { role?: Role; displayName?: string; active?: boolean }) => admin({ action: "update", id, ...patch });
 export const adminResetPassword = (id: string, password: string) => admin({ action: "reset_password", id, password });
+/** Comprueba que la función `admin-users` está desplegada y devuelve el dominio interno de correo que usa. */
+export const adminPing = () => admin({ action: "ping" });
 export const adminRemoveAccess = (id: string) => admin({ action: "remove_access", id });
 
 // --- Grupos, matrículas y maestros de grupo ---

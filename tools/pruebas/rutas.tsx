@@ -58,4 +58,14 @@ ok(["A. Usuarios", "B. Roles", "C. Asignación de maestros", "D. Progreso de mae
 ok(h.includes("Restablecer contraseña") && h.includes("Restablecer</button>"), "Administrador: puede restablecer contraseñas");
 as("ESTUDIANTE", "estudiante"); h = render("/estudiante"); ok(h.includes("Área del estudiante") && !h.includes(">Plan Anual<"), "Estudiante: solo su área en el menú");
 as(null); h = render("/login"); ok(h.includes("Iniciar sesión") && !h.includes(">Plan Anual<") && !h.includes(">Maestros<"), "Visitante: la pantalla de login no ofrece accesos al sistema");
+console.log("— Publicado SIN servidor configurado —");
+const { allowLocalForTests } = await import("../../src/backend/config");
+allowLocalForTests(false);
+as(null);
+h = render("/login");
+ok(h.includes("Falta configurar el servidor") && h.includes("VITE_SUPABASE_URL") && h.includes("VITE_SUPABASE_ANON_KEY"), "Sin Supabase y fuera de desarrollo: pantalla 'Falta configurar el servidor' con las variables que faltan");
+ok(!h.includes("Iniciar sesión") && !h.includes("Plan Anual"), "…y no se ofrece login ni contenido que parezca funcional");
+as("ADMINISTRADOR", "admin"); h = render("/administracion");
+ok(h.includes("Falta configurar el servidor") && !h.includes("Panel del Administrador"), "Ni siquiera con una sesión local falsa en el navegador se muestra el panel");
+allowLocalForTests(true);
 done();

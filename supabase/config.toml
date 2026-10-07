@@ -1,0 +1,11 @@
+# Configuración mínima para la CLI de Supabase (supabase link / db push / functions deploy). No contiene secretos.
+# ESTADO: no probada con la CLI real (no hay proyecto Supabase todavía). Si prefieres el panel web, no la necesitas.
+project_id = "cimiento"
+
+[functions.admin-users]
+# La función valida por sí misma el JWT y exige rol ADMINISTRADOR.
+verify_jwt = true
+
+[functions.send-deliveries]
+# La llamada programada (cron) no trae JWT de usuario; se protege con el encabezado x-cron-secret.
+verify_jwt = false

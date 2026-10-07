@@ -122,6 +122,13 @@ await step("Cada lección muestra el MAESTRO ASIGNADO", async () => { await wait
 await step("Historial de cambios visible solo para staff", async () => { await click(byText("button", "Historial de cambios", true)); await waitFor(() => text().includes("teacher_assignments") || text().includes("profiles") || text().includes("Sin cambios"), "historial"); });
 await step("La pestaña Revisión pastoral lista las preguntas marcadas", async () => { await click(byText("button", "Revisión pastoral", true)); await waitFor(() => text().includes("Pendiente de revisión pastoral") && text().includes("s1-q9"), "preguntas pendientes"); });
 
+await step("La pestaña Diagnóstico muestra el estado real del servidor (todo lo obligatorio en orden)", async () => {
+  await click(byText("button", "Diagnóstico", true), "pestaña Diagnóstico");
+  await waitFor(() => text().includes("Diagnóstico del servidor") && text().includes("Todo lo obligatorio está correcto."), "diagnóstico en verde");
+  ok(text().includes("Permisos por fila (RLS)") && text().includes("almacenamiento privado") && text().includes("anon") && text().includes("Hay al menos un Administrador"), "Lista RLS, almacenamiento, anon y Administrador");
+  ok(!text().includes(anon), "El diagnóstico nunca muestra claves");
+});
+
 console.log("3) Pastor");
 await step("Login del Pastor → su panel (supervisión)", async () => { await loginAs("pastor"); await waitFor(() => text().includes("Supervisión de CIMIENTO"), "panel pastor"); });
 await step("El Pastor NO entra a /administracion (vuelve a su panel)", async () => {
