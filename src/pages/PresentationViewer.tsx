@@ -8,13 +8,14 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import { useWeekParam } from "../utils/weekParam";
 import { getWeekByNumber } from "../services/weekService";
 import { PRESENTATION_CONFIG, slideUrl } from "../config/presentationConfig";
+import { PREPARATION_CONFIG } from "../config/preparationConfig";
 import { addSlideSeconds, addVisit, loadUsage, summarize } from "../services/presentationService";
 import "./Course.css";
 import "./PresentationViewer.css";
 
 /**
  * Visor de la presentación: proyecta las diapositivas y registra el uso REAL
- * (segundos por diapositiva con la pestaña visible) que alimenta el 20 % de la preparación.
+ * (segundos por diapositiva con la pestaña visible) que alimenta el 15 % de la preparación.
  */
 export default function PresentationViewer() {
   const week = useWeekParam();
@@ -135,7 +136,7 @@ export default function PresentationViewer() {
         </div>
         <p>
           Uso registrado: <strong>{sum.slidesUsed} de {sum.total}</strong> diapositivas proyectadas ·{" "}
-          {Math.round(sum.fraction * 20)} de 20 puntos de preparación.
+          {Math.round(sum.fraction * PREPARATION_CONFIG.presentation)} de {PREPARATION_CONFIG.presentation} puntos de preparación.
         </p>
         <Link to={`/plan-anual/semana-${lesson.week}`} className="viewer__back">← Volver a la semana</Link>
       </div>

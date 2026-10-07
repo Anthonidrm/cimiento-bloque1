@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { listAttendance, markAttendance, logEvent, addNote } from "../../backend/classes";
 import { useClassStudents } from "./classroomHooks";
+import { refreshMandatory } from "../../backend/sync";
 import { listTasks, listSubmissions, createTask, gradeSubmission, setParticipation, listActivities, markActivityDone, listIntegrationActivities, assignIntegration, registerParticipation, signedUrl } from "../../backend/students";
 import type { AttendanceStatus, Profile } from "../../backend/types";
 import { Msg, Loading } from "../panels/ui";
@@ -112,7 +113,7 @@ export function MandatoryBlock({ week, students }: { week: number; students: Pro
       <Msg msg={act.msg} />
       {mine.length === 0 ? <p>Esta lección no tiene actividades obligatorias.</p> : mine.map((a) => (
         <div className="pn-card" key={a.id} style={{ marginBottom: 12 }}><strong>{a.title}</strong> <small>({a.points} puntos)</small><br /><small>{a.instructions}</small>
-          <div className="pn-inline" style={{ marginTop: 8 }}>{students.map((s) => <button key={s.id} type="button" className="pn-btn secondary" disabled={act.busy} onClick={() => act.run(() => markActivityDone(a.id, s.id, a.points), `${s.display_name}: cumplida.`)}>✔ {s.display_name}</button>)}</div></div>
+          <div className="pn-inline" style={{ marginTop: 8 }}>{students.map((s) => <button key={s.id} type="button" className="pn-btn secondary" disabled={act.busy} onClick={() => act.run(async () => { await markActivityDone(a.id, s.id, a.points); await refreshMandatory(week); }, `${s.display_name}: cumplida.`)}>✔ {s.display_name}</button>)}</div></div>
       ))}
     </section>
   );

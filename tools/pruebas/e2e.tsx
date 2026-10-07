@@ -130,6 +130,7 @@ await step("El Pastor NO entra a /administracion (vuelve a su panel)", async () 
 });
 await step("El Pastor ve el progreso de los maestros", async () => {
   await click(byText("button", "Progreso de maestros", true)); await waitFor(() => text().includes("Lela") && text().includes("23/23"), "fila de Lela con 23/23 apartados");
+  ok(text().includes("Guía (45)") && text().includes("Examen (25)") && text().includes("Presentación (15)") && text().includes("Actividades (15)"), "La tabla muestra los 4 componentes con sus pesos 45/25/15/15");
 });
 
 console.log("4) Maestro: aula, clase, pase de lista, tareas, informe");
@@ -257,8 +258,23 @@ await step("Guía, examen y presentación se envían al servidor con sus reglas,
 
   // El porcentaje local coincide con el que calcula el servidor.
   const local = PP.computePreparation(1, uid(4)).components;
-  const srv = sql(`select guide_pts || '/' || exam_pts || '/' || presentation_pts from teacher_prep('${uid(4)}', 1)`).split("/").map(Number);
-  ok(Math.abs(local.find((c) => c.key === "guide")!.earned - srv[0]) < 0.06 && Math.abs(local.find((c) => c.key === "presentation")!.earned - srv[2]) < 0.06, `Preparación local = servidor (guía ${srv[0]}, presentación ${srv[2]})`);
+  const srv = sql(`select guide_pts || '/' || exam_pts || '/' || presentation_pts || '/' || mandatory_pts from teacher_prep('${uid(4)}', 1)`).split("/").map(Number);
+  const near = (k: string, v: number) => Math.abs(local.find((c) => c.key === k)!.earned - v) < 0.06;
+  ok(near("guide", srv[0]) && near("exam", srv[1]) && near("presentation", srv[2]) && near("mandatoryActivities", srv[3]), `Preparación local = servidor (guía ${srv[0]}, examen ${srv[1]}, presentación ${srv[2]}, actividades ${srv[3]})`);
+  ok(local.reduce((a, c) => a + c.weight, 0) === 100, "Los pesos mostrados suman 100");
+
+  // Actividades obligatorias: el servidor dice cuántas hay y cuántas registró el maestro; la app actualiza su porcentaje.
+  sql(`insert into mandatory_activities(id, week, title, created_by) values ('f7000000-0000-0000-0000-000000000001', 1, 'Act A', '${uid(1)}'), ('f7000000-0000-0000-0000-000000000002', 1, 'Act B', '${uid(1)}');`);
+  await S.refreshMandatory(1);
+  const MS = await import("../../src/services/mandatoryService");
+  const m0 = PP.computePreparation(1, uid(4)).components.find((c) => c.key === "mandatoryActivities")!;
+  ok(JSON.stringify(MS.getMandatoryStats(1, uid(4))) === JSON.stringify({ total: 2, done: 0 }) && m0.earned === 0, "Con 2 actividades definidas y ninguna registrada: 0 de 15");
+  sql(`insert into activity_completions(activity_id, student_id, teacher_id, points) values ('f7000000-0000-0000-0000-000000000001', '${uid(5)}', '${uid(4)}', 0);`);
+  await S.refreshMandatory(1);
+  const m1 = PP.computePreparation(1, uid(4)).components.find((c) => c.key === "mandatoryActivities")!;
+  ok(m1.earned === 7.5 && m1.detail.startsWith("1 de 2"), "Al registrar 1 de 2 la app muestra 7,5 de 15");
+  const srv2 = Number(sql(`select mandatory_pts from teacher_prep('${uid(4)}', 1)`));
+  ok(srv2 === m1.earned, `Coincide con el servidor (${srv2})`);
 });
 
 console.log("8) Recursos reemplazables y almacenamiento privado");

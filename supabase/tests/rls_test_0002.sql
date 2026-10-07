@@ -35,7 +35,7 @@ do $$ declare r jsonb; begin
   perform t.as_user(t.u(2));
   perform t.check((select count(*) from exam_answers a join exam_attempts x on x.id = a.attempt_id where x.week = 10) = 3 and (select score_percent from exam_attempts where user_id = t.u(3) and week = 10) = 33, 'El Pastor ve las respuestas y la nota del maestro');
 end $$;
-select t.check((select exam_pts from teacher_prep(t.u(3), 10)) = 9.9, 'Preparación: examen 33 % = 9,9 de 30 puntos');
+select t.check((select exam_pts from teacher_prep(t.u(3), 10)) = 8.3, 'Preparación: examen 33 % = 8,3 de 25 puntos');
 
 -- ===== Guía secuencial en el servidor =====
 do $$ declare r jsonb; begin
@@ -53,7 +53,7 @@ do $$ declare r jsonb; begin
   perform t.as_user(t.u(5));
   perform t.check(t.fails('select guide_add_seconds(10, 1, 5)'), 'Un estudiante no usa la guía del maestro');
 end $$;
-select t.check((select guide_pts from teacher_prep(t.u(3), 10)) = 2.2, 'Preparación: 1 de 23 apartados = 2,2 de 50');
+select t.check((select guide_pts from teacher_prep(t.u(3), 10)) = 2.0, 'Preparación: 1 de 23 apartados = 2,0 de 45');
 
 -- ===== Presentación por uso real (en el servidor) =====
 do $$ begin
@@ -65,7 +65,7 @@ do $$ begin
   perform t.check(t.fails('select presentation_add_seconds(10, 1, 5, gen_random_uuid())'), 'No se vincula a una sesión que no está en curso');
   perform t.check(t.fails('insert into presentation_usage(user_id,week,slide,seconds) values (t.u(3), 10, 2, 999)'), 'El maestro NO escribe su uso de la presentación directamente');
 end $$;
-select t.check((select presentation_pts from teacher_prep(t.u(3), 10)) = 2.2, 'Preparación: 1 de 9 diapositivas = 2,2 de 20');
+select t.check((select presentation_pts from teacher_prep(t.u(3), 10)) = 1.7, 'Preparación: 1 de 9 diapositivas = 1,7 de 15');
 
 -- ===== Asignación de maestros: quién y cuándo lo fija el servidor =====
 do $$ begin

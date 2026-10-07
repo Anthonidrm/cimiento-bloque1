@@ -261,7 +261,7 @@ export default function GuidePrep() {
           <PreparationPanel week={lesson.week} refreshKey={prepKey} />
           <p className="guide-side__cta">
             <Link to={`/plan-anual/semana-${lesson.week}/examen`} className="guide-btn">
-              Examen del maestro (30%)
+              Examen del maestro (25%)
             </Link>
             <Link to={`/plan-anual/semana-${lesson.week}`} className="guide-back">
               ← Volver a la semana

@@ -9,10 +9,11 @@
 // Sin backend, nada de esto se ejecuta y la app funciona en modo local como antes.
 import { isBackendConfigured } from "./config";
 import { getSession } from "../auth/session";
-import { guideAddSeconds, myGuideProgress, myExam, myPresentationUsage, presentationAddSeconds, examAnswer, type ExamAnswerResult } from "./prep";
+import { guideAddSeconds, myGuideProgress, myExam, myPresentationUsage, presentationAddSeconds, examAnswer, myMandatoryStats, type ExamAnswerResult } from "./prep";
 import { loadProgress, saveProgress, emptyProgress } from "../services/guidePrepService";
 import { getExamState, saveExamState, type ExamAttempt, type AttemptRecord } from "../services/examService";
 import { loadUsage, saveUsage } from "../services/presentationService";
+import { saveMandatoryStats } from "../services/mandatoryService";
 import { getAllWeeks } from "../services/weekService";
 import type { ExamQuestion } from "../data/weekTypes";
 
@@ -131,6 +132,19 @@ export async function hydrateWeek(week: number): Promise<void> {
     const u = loadUsage(week, userId);
     for (const row of p) u.seconds[row.slide] = Math.max(u.seconds[row.slide] ?? 0, row.seconds);
     saveUsage(u);
+  }
+
+  await refreshMandatory(week);
+}
+
+/** Actividades obligatorias de la lección (15 % de la preparación): recupera del servidor cuántas hay y cuántas registró el maestro. */
+export async function refreshMandatory(week: number): Promise<void> {
+  if (!syncActive()) return;
+  const userId = getSession()!.userId;
+  try {
+    saveMandatoryStats(week, await myMandatoryStats(userId, week), userId);
+  } catch (e) {
+    status.lastError = (e as Error).message;
   }
 }
 

@@ -62,6 +62,7 @@ export default function ClassRoom() {
             <div className="pn-cards">
               <div className="pn-card"><small>Guía del Maestro</small><div className="big">{p.guide_done}/23</div><small>apartados completados</small></div>
               <div className="pn-card"><small>Examen</small><div className="big">{p.exam_completed ? "Hecho" : "Pendiente"}</div></div>
+              <div className="pn-card"><small>Actividades obligatorias</small><div className="big">{p.mandatory_total === 0 ? "—" : `${p.mandatory_done}/${p.mandatory_total}`}</div><small>{p.mandatory_total === 0 ? "la lección no tiene" : "registradas en clase"}</small></div>
               <div className="pn-card"><small>Preparación</small><div className="big">{Math.round(p.total_pts)} %</div></div>
             </div>
           )}

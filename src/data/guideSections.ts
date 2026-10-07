@@ -208,7 +208,7 @@ function pptBlocks(w: WeekGuide, ex: Extras): GuideBlock[] {
     { t: "h", text: "Cómo utilizar este recurso" },
     {
       t: "p",
-      text: "La presentación tiene 9 diapositivas pensadas para proyectarse a los niños. Acompaña la clase, no la sustituye: el desarrollo completo está en esta guía. El 20 % de tu preparación se calcula según las diapositivas que realmente proyectes desde la aplicación; abrir o descargar el archivo no suma.",
+      text: "La presentación tiene 9 diapositivas pensadas para proyectarse a los niños. Acompaña la clase, no la sustituye: el desarrollo completo está en esta guía. El 15 % de tu preparación se calcula según las diapositivas que realmente proyectes desde la aplicación; abrir o descargar el archivo no suma.",
     },
     {
       t: "ol",

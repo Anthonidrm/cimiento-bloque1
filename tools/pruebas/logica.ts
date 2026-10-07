@@ -9,7 +9,8 @@ const P = await import("../../src/services/preparationService");
 const E = await import("../../src/services/examService");
 const PR = await import("../../src/services/presentationService");
 const A = await import("../../src/auth/authService");
-const { resolveWeights } = await import("../../src/config/preparationConfig");
+const { resolveWeights, PREPARATION_TOTAL } = await import("../../src/config/preparationConfig");
+const MS = await import("../../src/services/mandatoryService");
 const { EXAM_CONFIG } = await import("../../src/config/examConfig");
 const { PRESENTATION_CONFIG } = await import("../../src/config/presentationConfig");
 const { layoutRedirect, landingFor } = await import("../../src/auth/landing");
@@ -32,25 +33,65 @@ ok(!G.isUnlocked(p, 2), "A los 29 s el apartado 2 sigue bloqueado");
 p = G.addSeconds(p, 1, 1, "t");
 ok(G.isUnlocked(p, 2) && G.isOpened(p, 1), "A los 30 s se desbloquea el 2 y el 1 permanece desplegado");
 
-console.log("2) Pesos: guía 50 · examen 30 · presentación 20");
+console.log("2) Pesos: guía 45 · examen 25 · presentación 15 · actividades obligatorias 15 (= 100)");
 const w = resolveWeights();
-ok(w.guide === 50 && w.exam === 30 && w.presentation === 20, `Pesos ${w.guide}/${w.exam}/${w.presentation}`);
+ok(w.guide === 45 && w.exam === 25 && w.presentation === 15 && w.mandatoryActivities === 15, `Pesos ${w.guide}/${w.exam}/${w.presentation}/${w.mandatoryActivities}`);
+ok(w.guide + w.exam + w.presentation + w.mandatoryActivities === 100 && PREPARATION_TOTAL === 100, "Los pesos suman EXACTAMENTE 100");
+ok(P.computePreparation(1, "nadie").components.reduce((a, c) => a + c.weight, 0) === 100, "Los componentes mostrados suman 100 puntos máximos");
 store.clear(); await login("lela");
-ok(P.computePreparation(1).percent === 0, "Sin hacer nada: 0 %");
+ok(P.computePreparation(1).percent === 15, "Sin hacer nada: 15 % (solo las actividades obligatorias, que se otorgan completas si la lección no tiene)");
 let gp = G.loadProgress(1);
 for (let n = 1; n <= 12; n++) { gp = G.openSection(gp, n, "t"); gp = G.addSeconds(gp, n, 30, "t"); }
 G.saveProgress(gp);
 const gc = P.computePreparation(1).components.find((c) => c.key === "guide")!;
-ok(Math.abs(gc.earned - (12 / 23) * 50) < 0.001, `La guía NO se regala: 12 de 23 apartados = ${gc.earned.toFixed(1)} de 50`);
+ok(Math.abs(gc.earned - (12 / 23) * 45) < 0.001, `La guía NO se regala: 12 de 23 apartados = ${gc.earned.toFixed(1)} de 45`);
 
 console.log("3) Presentación: uso real, no un clic");
-ok(P.computePreparation(1).components.find((c) => c.key === "presentation")!.earned === 0, "Sin proyectar nada: 0 de 20");
+ok(P.computePreparation(1).components.find((c) => c.key === "presentation")!.earned === 0, "Sin proyectar nada: 0 de 15");
 for (let sl = 1; sl <= 4; sl++) PR.addSlideSeconds(1, sl, PRESENTATION_CONFIG.minSecondsPerSlide);
 PR.addSlideSeconds(1, 5, PRESENTATION_CONFIG.minSecondsPerSlide - 1);
 const pc = P.computePreparation(1).components.find((c) => c.key === "presentation")!;
-ok(Math.abs(pc.earned - (4 / 9) * 20) < 0.001, `4 de 9 diapositivas con ≥ ${PRESENTATION_CONFIG.minSecondsPerSlide} s = ${pc.earned.toFixed(1)} de 20 (la de 4 s no cuenta)`);
+ok(Math.abs(pc.earned - (4 / 9) * 15) < 0.001, `4 de 9 diapositivas con ≥ ${PRESENTATION_CONFIG.minSecondsPerSlide} s = ${pc.earned.toFixed(1)} de 15 (la de 4 s no cuenta)`);
 for (let sl = 1; sl <= 9; sl++) PR.addSlideSeconds(1, sl, PRESENTATION_CONFIG.minSecondsPerSlide);
-ok(P.computePreparation(1).components.find((c) => c.key === "presentation")!.earned === 20, "Las 9 diapositivas: 20 de 20");
+ok(P.computePreparation(1).components.find((c) => c.key === "presentation")!.earned === 15, "Las 9 diapositivas: 15 de 15");
+
+
+console.log("3b) Actividades obligatorias: 15 % de la preparación");
+store.clear(); await login("yely");
+const mand = (wk = 2) => P.computePreparation(wk).components.find((c) => c.key === "mandatoryActivities")!;
+ok(mand().earned === 15 && mand().done && /no tiene actividades/.test(mand().detail), "Lección sin actividades definidas: se otorga completo (15 de 15)");
+MS.saveMandatoryStats(2, { total: 4, done: 0 });
+ok(mand().earned === 0 && !mand().done, "4 actividades y ninguna registrada: 0 de 15");
+MS.saveMandatoryStats(2, { total: 4, done: 1 });
+ok(Math.abs(mand().earned - 3.75) < 1e-9 && mand().detail.startsWith("1 de 4"), "1 de 4 registradas: 3,75 de 15");
+MS.saveMandatoryStats(2, { total: 4, done: 9 });
+ok(mand().earned === 15 && mand().done, "Nunca pasa de 15 aunque el dato sea mayor");
+MS.saveMandatoryStats(2, { total: 4, done: 4 });
+ok(mand().earned === 15 && mand().done, "4 de 4: 15 de 15");
+store.clear(); await login("mari");
+MS.saveMandatoryStats(3, { total: 2, done: 1 });
+store.clear(); await login("yely");
+ok(MS.getMandatoryStats(3).total === 0, "Las actividades registradas son independientes por maestro");
+
+console.log("3c) Preparación completa = 100 % exacto; cada componente que falta resta su peso");
+const pw = getWeek(1)!;
+const finishExam = () => { for (const q of pw.examQuestions) { if (q.type === "matching") E.answerQuestion(1, q, { pairs: Object.fromEntries(q.pairs!.map((x) => [x.left, x.right])) }); else E.answerQuestion(1, q, { optionId: q.correctOptionId }); } };
+const finishGuide = () => { let g = G.loadProgress(1); for (let n = 1; n <= 23; n++) { g = G.openSection(g, n, "t"); g = G.addSeconds(g, n, 30, "t"); } G.saveProgress(g); };
+const finishPres = () => { for (let sl = 1; sl <= 9; sl++) PR.addSlideSeconds(1, sl, PRESENTATION_CONFIG.minSecondsPerSlide); };
+store.clear(); await login("nuna");
+MS.saveMandatoryStats(1, { total: 2, done: 0 });
+ok(P.computePreparation(1).percent === 0, "Con actividades definidas y nada hecho: 0 %");
+finishGuide(); ok(P.computePreparation(1).percent === 45, "Solo la guía completa: 45 %");
+finishExam(); ok(P.computePreparation(1).percent === 70, "Guía + examen perfecto: 70 %");
+finishPres(); ok(P.computePreparation(1).percent === 85, "+ presentación: 85 %");
+MS.saveMandatoryStats(1, { total: 2, done: 1 }); ok(P.computePreparation(1).percent === 93, "+ la mitad de las actividades: 92,5 % (se muestra redondeado a 93)");
+MS.saveMandatoryStats(1, { total: 2, done: 2 });
+const full = P.computePreparation(1);
+ok(full.percent === 100 && full.components.reduce((a, c) => a + c.earned, 0) === 100, "Todo completo: EXACTAMENTE 100 %");
+ok(full.components.every((c) => c.done), "Todos los componentes figuran como completos");
+store.clear(); await login("naty");
+finishGuide(); finishExam(); finishPres(); MS.saveMandatoryStats(1, { total: 3, done: 0 });
+ok(P.computePreparation(1).percent === 85, "Sin las actividades obligatorias (existen y no se hicieron): 85 %");
 
 console.log("4) Examen: primera respuesta bloqueada, intentos, relación");
 store.clear(); await login("tefa");
@@ -70,7 +111,7 @@ for (const q of qs.slice(1)) {
 }
 const a1 = E.getCurrentAttempt(1)!;
 ok(!!a1.completedAt && a1.scorePercent === Math.round((8 / 9) * 100), `Intento 1 completado con 8/9 = ${a1.scorePercent}% (el error inicial cuenta)`);
-ok(E.getExamScore(1, 9) === 89 && P.computePreparation(1).components.find((c) => c.key === "exam")!.earned === (89 / 100) * 30, "El examen aporta 89 % de 30 puntos");
+ok(E.getExamScore(1, 9) === 89 && P.computePreparation(1).components.find((c) => c.key === "exam")!.earned === (89 / 100) * 25, "El examen aporta 89 % de 25 puntos");
 ok(!E.answerQuestion(1, q1, { optionId: q1.correctOptionId }).ok, "Tras terminar el intento ya no se acepta nada");
 ok(EXAM_CONFIG.maxAttempts === 1 && !E.canStartNewAttempt(1), "El examen tiene UN SOLO intento: no se puede iniciar otro");
 ok(E.startAttempt(1) === undefined && E.getExamState(1).attempts.length === 1, "Intentar abrir un segundo intento no hace nada");

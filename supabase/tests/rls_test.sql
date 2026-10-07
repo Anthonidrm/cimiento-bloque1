@@ -97,10 +97,10 @@ update exam_attempts set completed_at = now(), score_percent = 100 where id = 'b
 insert into presentation_usage(user_id,week,slide,seconds) select 'a0000000-0000-0000-0000-000000000003', 1, s, case when s <= 4 then 5 when s = 5 then 4 else 0 end from generate_series(1,5) s;
 do $$ declare r record; begin
   select * into r from teacher_prep('a0000000-0000-0000-0000-000000000003', 1);
-  perform t.check(r.guide_pts = 26.1, 'Guía: 12 de 23 apartados = 26,1 de 50 (no se regala)');
-  perform t.check(r.exam_pts = 30.0, 'Examen: único intento con 100 % = 30 de 30');
-  perform t.check(r.presentation_pts = 8.9, 'Presentación: 4 de 9 diapositivas (≥5 s) = 8,9 de 20; la de 4 s no cuenta');
-  perform t.check(r.total_pts = 65.0, 'Total de preparación = 65,0');
+  perform t.check(r.guide_pts = 23.5, 'Guía: 12 de 23 apartados = 23,5 de 45 (no se regala)');
+  perform t.check(r.exam_pts = 25.0, 'Examen: único intento con 100 % = 25 de 25');
+  perform t.check(r.presentation_pts = 6.7, 'Presentación: 4 de 9 diapositivas (≥5 s) = 6,7 de 15; la de 4 s no cuenta');
+  perform t.check(r.mandatory_pts = 15.0, 'Actividades obligatorias: lección sin actividades definidas = 15 de 15'); perform t.check(r.total_pts = 70.2, 'Total de preparación = 70,2 (23,5 + 25 + 6,7 + 15)');
 end $$;
 
 -- 7. Tareas: ventana de entrega y privacidad

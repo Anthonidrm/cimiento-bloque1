@@ -1,4 +1,4 @@
-// Configuración del uso de la presentación (20 % de la preparación).
+// Configuración del uso de la presentación (15 % de la preparación).
 // El uso NO se otorga por abrir un enlace: se mide dentro de la aplicación, por diapositiva
 // proyectada y tiempo con la diapositiva en pantalla.
 export const PRESENTATION_CONFIG = {

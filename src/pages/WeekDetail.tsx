@@ -257,7 +257,7 @@ export default function WeekDetail() {
               <Link to={`/plan-anual/semana-${lesson.week}/examen`} className="week-exam-btn">
                 {examDone
                   ? `Examen completado — ${examScore}% · Repetir examen`
-                  : "Realizar examen del maestro (30%)"}
+                  : "Realizar examen del maestro (25%)"}
               </Link>
               <Link
                 to={`/plan-anual/semana-${lesson.week}/revision`}

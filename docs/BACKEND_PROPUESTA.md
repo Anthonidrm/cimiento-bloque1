@@ -12,6 +12,7 @@ pero **no probadas**. Nada de lo multiusuario se simula con `localStorage`.
 | `0003_cimiento_storage.sql` | Buckets privados `recursos`, `entregas`, `fotos` y sus políticas por rol |
 | `0004_cimiento_acceso_y_auditoria.sql` | `complete_first_access()` (primer acceso), `change_log` + disparadores (historial de cambios), programación de alertas (pg_cron, comentada) |
 | `0005_cimiento_reemplazo_recursos.sql` | Corrige que el Pastor no podía reemplazar recursos subidos por otra persona |
+| `0006_cimiento_pesos_preparacion.sql` | Pesos de preparación 45/25/15/15 (siempre suman 100), `teacher_prep` con el componente de actividades obligatorias y `v_teacher_progress` con sus columnas |
 
 Semillas (`supabase/seed/`): títulos de lecciones y claves del examen (generadas desde los datos de la app), juegos del versículo,
 y un ejemplo de destinatarios de informes (las direcciones reales **no** se guardan en el repositorio).
@@ -41,7 +42,7 @@ y un ejemplo de destinatarios de informes (las direcciones reales **no** se guar
 ## Reglas que aplica el servidor
 - **Examen del maestro:** un solo intento; la primera respuesta es definitiva; el servidor califica (`exam_answer`).
 - **Guía:** secuencial; ≥ 30 s por apartado; ≤ 60 s por llamada (`guide_add_seconds`).
-- **Preparación:** guía 50 % (por apartados) · examen 30 % · presentación 20 % (por diapositivas usadas ≥ 5 s) (`teacher_prep`).
+- **Preparación del maestro (suma exactamente 100 %):** guía 45 % (por apartados) · examen 25 % · presentación 15 % (por diapositivas usadas ≥ 5 s) · actividades obligatorias 15 % (las que el maestro registró en clase / las definidas para la lección; sin actividades definidas se otorga completo) (`teacher_prep`). La base de datos rechaza pesos que no sumen 100.
 - **Asignación:** estado y días de atraso en `v_assignment_status`; alerta a Pastor y Administrador pasadas 4 h sin maestro.
 - **Iniciar clase:** solo el maestro asignado y con guía completa + examen; excepción de Administrador/Pastor.
 - **Tareas:** entrega solo desde el inicio de la clase hasta el inicio de la próxima; lo entregado se conserva.
@@ -56,7 +57,7 @@ Rutas convenidas (las usan las políticas): `recursos/{audiencia}/{semana}/{tipo
 Migración desde `public/`: `tools/backend/subir_recursos.ts` (60 archivos: 4 guías, 20 materiales, 36 diapositivas).
 
 ## Pruebas
-210 pruebas SQL (`supabase/tests/run.sh`) · 54 de integración y 77 de extremo a extremo (`supabase/tests/e2e.sh`).
+231 pruebas SQL (`supabase/tests/run.sh`) · 61 de integración y 82 de extremo a extremo (`supabase/tests/e2e.sh`).
 Detalle en el README. Lo **no** probado: Supabase Auth real, Storage real (solo sus políticas en SQL), Edge Functions, envío de correo.
 
 ## Lo que sigue necesitando decisión o cuenta externa

@@ -1,9 +1,10 @@
 // Porcentaje de preparación del maestro por lección.
-// Pesos en src/config/preparationConfig.ts (examen 30 %, presentación 20 %,
-// 50 % restante configurable y todavía pendiente de definir).
+// Pesos en src/config/preparationConfig.ts: guía 45 % · examen 25 % · presentación 15 % · actividades obligatorias 15 %
+// (suman exactamente 100).
 import { getWeek } from "../data/weeks";
 import { getCurrentUserId } from "../auth/session";
-import { PREPARATION_CONFIG, resolveWeights } from "../config/preparationConfig";
+import { resolveWeights } from "../config/preparationConfig";
+import { getMandatoryStats } from "./mandatoryService";
 import { getPresentationUsage } from "./presentationService";
 import { GUIDE_SECTION_COUNT } from "../data/guideSections";
 import { completedCount, loadProgress } from "./guidePrepService";
@@ -21,7 +22,6 @@ export interface PreparationComponent {
 export interface PreparationResult {
   percent: number;
   components: PreparationComponent[];
-  activitiesPending: boolean;
 }
 
 export function computePreparation(week: number, userId: string = getCurrentUserId()): PreparationResult {
@@ -32,6 +32,7 @@ export function computePreparation(week: number, userId: string = getCurrentUser
   const examDone = isExamComplete(week, totalQ);
   const score = examDone ? getExamScore(week, totalQ) : 0;
   const pres = getPresentationUsage(week, userId);
+  const mand = getMandatoryStats(week, userId);
 
   const components: PreparationComponent[] = [
     {
@@ -62,18 +63,15 @@ export function computePreparation(week: number, userId: string = getCurrentUser
       key: "mandatoryActivities",
       label: "Actividades obligatorias",
       weight: w.mandatoryActivities,
-      earned: 0,
-      done: false,
-      detail: "Pendiente de definir (próxima fase)",
+      // Sin actividades definidas en la lección no hay nada que exigir: se otorga completo.
+      earned: mand.total === 0 ? w.mandatoryActivities : (mand.done / mand.total) * w.mandatoryActivities,
+      done: mand.total === 0 || mand.done === mand.total,
+      detail: mand.total === 0 ? "Esta lección no tiene actividades obligatorias" : `${mand.done} de ${mand.total} actividades registradas en clase`,
     },
   ];
 
   const percent = Math.round(components.reduce((s, c) => s + c.earned, 0));
-  return {
-    percent,
-    components,
-    activitiesPending: PREPARATION_CONFIG.mandatoryActivitiesPending,
-  };
+  return { percent, components };
 }
 
 export function getPreparationPercent(week: number, userId?: string): number {

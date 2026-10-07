@@ -26,7 +26,7 @@
 | AJ | Actividades de integración del Módulo 1 | ◐ documentadas abajo; falta definirlas y cargarlas (no se inventan) |
 | —  | Semanas 5–52 | ⛔ esperan la fuente oficial de temas |
 | —  | Claves del examen en el JavaScript público | ⛔ requiere mover el contenido a la base de datos |
-| —  | Actividades obligatorias en el % de preparación del maestro | ⛔ peso por definir (hoy 0 %) |
+| —  | Actividades obligatorias en el % de preparación del maestro | ✅ 15 % (guía 45 · examen 25 · presentación 15 · actividades 15 = 100). ◐ Confirmar: si la lección no tiene actividades se otorga completo |
 
 
 
@@ -130,7 +130,7 @@ Versículo: **Salmo 8:5** — "Le has hecho poco menor que los ángeles, y lo co
 
 ## C. Decisiones abiertas
 
-- **Reparto del 50 % restante del porcentaje de preparación.** Definido: examen 30 %, presentación 20 %.
+- **Reparto del porcentaje de preparación del maestro.** Definido: guía 45 %, examen 25 %, presentación 15 %, actividades obligatorias 15 % (suman 100).
   El resto (preparación y actividades obligatorias) está configurable en `src/config/preparationConfig.ts`
   y hoy lo recibe provisionalmente la lectura de la guía. Falta definir cómo se reparte.
 - **Autenticación real.** El login actual es de interfaz (ver README). Requiere backend (Supabase) para
@@ -156,5 +156,5 @@ La base doctrinal de cada apartado 9 usa únicamente las afirmaciones ya definid
 - **Preguntas de relación** (1 por semana, `s{N}-q9` en `src/data/weeks/weekNN.ts`): los pares se tomaron literalmente de la
   base doctrinal ya definida de cada semana; conviene que el Pastor las revise.
 - **Examen del maestro**: **un solo intento** (decisión confirmada). La primera respuesta de cada pregunta queda registrada y no se cambia; si es incorrecta se muestra la correcta y la explicación y cuenta en la calificación. El servidor califica (`exam_answer`).
-- **Presentación (20 %)**: se calcula por diapositivas realmente proyectadas en la app (≥ 5 s cada una); abrir o descargar
+- **Presentación (15 %)**: se calcula por diapositivas realmente proyectadas en la app (≥ 5 s cada una); abrir o descargar
   el archivo ya no suma.
