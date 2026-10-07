@@ -100,7 +100,7 @@ do $$ declare r record; begin
   perform t.check(r.guide_pts = 23.5, 'Guía: 12 de 23 apartados = 23,5 de 45 (no se regala)');
   perform t.check(r.exam_pts = 25.0, 'Examen: único intento con 100 % = 25 de 25');
   perform t.check(r.presentation_pts = 6.7, 'Presentación: 4 de 9 diapositivas (≥5 s) = 6,7 de 15; la de 4 s no cuenta');
-  perform t.check(r.mandatory_pts = 15.0, 'Actividades obligatorias: lección sin actividades definidas = 15 de 15'); perform t.check(r.total_pts = 70.2, 'Total de preparación = 70,2 (23,5 + 25 + 6,7 + 15)');
+  perform t.check(r.mandatory_pts = 0, 'Actividades obligatorias del maestro: aún no dio la clase = 0 de 15'); perform t.check(r.total_pts = 55.2, 'Total de preparación = 55,2 (23,5 + 25 + 6,7 + 0)');
 end $$;
 
 -- 7. Tareas: ventana de entrega y privacidad

@@ -10,9 +10,9 @@ Estructura única: `Plan Anual → Módulo → Semana → Lección → Recursos`
   (entrada, salida, tiempo, completado) y, al terminar, "Preparación completada" + "Imprimir lección".
   Versión imprimible (fondo blanco, los 23 apartados) y PDF descargable (`public/guias/`).
 - **Porcentaje de preparación del maestro** (suma exactamente 100 %): guía 45 % + examen 25 % + presentación 15 % +
-  actividades obligatorias 15 %. Pesos en `src/config/preparationConfig.ts` y en `app_config.prep_weights` del servidor (la base de datos
-  rechaza pesos que no sumen 100). Las actividades obligatorias cuentan por las que el maestro registra en clase; si la lección no tiene,
-  se otorga completo.
+  **actividades obligatorias del maestro 15 %**. Estas son **dos**: **inicio y finalización de clase** y **pase de lista** (7,5 % cada una).
+  Pesos en `src/config/preparationConfig.ts` y en `app_config` del servidor (la base de datos rechaza pesos que no sumen 100).
+  No incluyen las actividades de los estudiantes ni las **actividades de integración** (módulo independiente con sus coronas).
 - **Examen del maestro** por lección, con historial completo de intentos y errores, por usuario.
 - **Personajes oficiales**: `ChildGirl` y `ChildBoy` (`src/components/characters/`), con tamaño y
   poses (`stand`, `wave`, `cheer`, `point`). Imágenes SVG en `public/personajes/`.
@@ -73,7 +73,7 @@ Ver `.env.example`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_EM
 
 ## Supabase: puesta en marcha
 
-1. Crear el proyecto y aplicar **en orden** `supabase/migrations/0001` … `0006` (SQL Editor o CLI) y las semillas `supabase/seed/01` … `03`.
+1. Crear el proyecto y aplicar **en orden** `supabase/migrations/0001` … `0007` (SQL Editor o CLI) y las semillas `supabase/seed/01` … `03`.
 2. Crear a mano el **primer Administrador**: Authentication → Add user (`admin@cimiento.app`, contraseña) y luego en el SQL Editor
    `insert into profiles(id, username, display_name, role, must_change_password) values ('<uuid del usuario>', 'admin', 'Administrador', 'ADMINISTRADOR', true);`
    (las Edge Functions necesitan que ya exista un Administrador).

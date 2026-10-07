@@ -9,11 +9,11 @@
 // Sin backend, nada de esto se ejecuta y la app funciona en modo local como antes.
 import { isBackendConfigured } from "./config";
 import { getSession } from "../auth/session";
-import { guideAddSeconds, myGuideProgress, myExam, myPresentationUsage, presentationAddSeconds, examAnswer, myMandatoryStats, type ExamAnswerResult } from "./prep";
+import { guideAddSeconds, myGuideProgress, myExam, myPresentationUsage, presentationAddSeconds, examAnswer, myTeacherDuties, type ExamAnswerResult } from "./prep";
 import { loadProgress, saveProgress, emptyProgress } from "../services/guidePrepService";
 import { getExamState, saveExamState, type ExamAttempt, type AttemptRecord } from "../services/examService";
 import { loadUsage, saveUsage } from "../services/presentationService";
-import { saveMandatoryStats } from "../services/mandatoryService";
+import { saveTeacherDuties } from "../services/mandatoryService";
 import { getAllWeeks } from "../services/weekService";
 import type { ExamQuestion } from "../data/weekTypes";
 
@@ -134,15 +134,15 @@ export async function hydrateWeek(week: number): Promise<void> {
     saveUsage(u);
   }
 
-  await refreshMandatory(week);
+  await refreshDuties(week);
 }
 
-/** Actividades obligatorias de la lección (15 % de la preparación): recupera del servidor cuántas hay y cuántas registró el maestro. */
-export async function refreshMandatory(week: number): Promise<void> {
+/** Actividades obligatorias del maestro (inicio/fin de clase y pase de lista; 15 % de la preparación): recupera lo que dice el servidor. */
+export async function refreshDuties(week: number): Promise<void> {
   if (!syncActive()) return;
   const userId = getSession()!.userId;
   try {
-    saveMandatoryStats(week, await myMandatoryStats(userId, week), userId);
+    saveTeacherDuties(week, await myTeacherDuties(userId, week), userId);
   } catch (e) {
     status.lastError = (e as Error).message;
   }

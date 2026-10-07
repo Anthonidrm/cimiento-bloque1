@@ -27,14 +27,12 @@ export async function myPresentationUsage(week: number) {
 }
 /** Preparación calculada por el servidor (50 guía · 30 examen · 20 presentación). */
 export async function myPrep(userId: string, week: number) {
-  const rows = unwrap(await getClient().rpc("teacher_prep", { p_user: userId, p_week: week })) as { guide_pts: number; exam_pts: number; presentation_pts: number; mandatory_pts: number; total_pts: number; guide_done: number; exam_completed: boolean; mandatory_done: number; mandatory_total: number }[];
+  const rows = unwrap(await getClient().rpc("teacher_prep", { p_user: userId, p_week: week })) as { guide_pts: number; exam_pts: number; presentation_pts: number; class_pts: number; attendance_pts: number; mandatory_pts: number; total_pts: number; guide_done: number; exam_completed: boolean; class_done: boolean; attendance_done: boolean; mandatory_done: number; mandatory_total: number }[];
   return rows[0];
 }
 
-/** Actividades obligatorias de la lección y cuántas registró este maestro (cuentan 15 % de su preparación). */
-export async function myMandatoryStats(userId: string, week: number): Promise<{ total: number; done: number }> {
-  const acts = unwrap(await getClient().from("mandatory_activities").select("id").eq("week", week)) as { id: string }[];
-  if (!acts.length) return { total: 0, done: 0 };
-  const rows = unwrap(await getClient().from("activity_completions").select("activity_id").eq("teacher_id", userId).in("activity_id", acts.map((a) => a.id))) as { activity_id: string }[];
-  return { total: acts.length, done: new Set(rows.map((r) => r.activity_id)).size };
+/** Las dos actividades obligatorias del maestro en la lección (15 % de su preparación), según el servidor. */
+export async function myTeacherDuties(userId: string, week: number): Promise<{ classDone: boolean; attendanceDone: boolean }> {
+  const p = await myPrep(userId, week);
+  return { classDone: p.class_done === true, attendanceDone: p.attendance_done === true };
 }

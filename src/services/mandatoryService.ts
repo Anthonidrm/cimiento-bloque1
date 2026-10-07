@@ -1,24 +1,25 @@
-// Actividades obligatorias del MAESTRO en una lección: cuántas tiene la lección y cuántas registró él en clase.
-// La fuente de verdad es el servidor (activity_completions); aquí solo se guarda una COPIA (caché) de lo que el servidor
-// dijo, para que el porcentaje de preparación se pueda calcular de inmediato. Sin backend no existen actividades
-// obligatorias (no se pueden definir ni registrar), así que la copia es { total: 0 }.
+// Actividades obligatorias DEL MAESTRO en una lección (15 % de su preparación):
+//   1) inicio y finalización de clase (las hizo él mismo)   2) pase de lista completo
+// La fuente de verdad es el servidor (teacher_prep); aquí solo se guarda una COPIA (caché) de lo que el servidor dijo, para
+// que el porcentaje se pueda calcular de inmediato. Sin backend no hay clases ni listas, así que ninguna está hecha.
+// (No incluye las actividades de integración ni las "actividades de la lección" de los estudiantes.)
 import { readJSON, writeJSON } from "../utils/storage";
 import { getCurrentUserId } from "../auth/session";
 
-export interface MandatoryStats {
-  /** Actividades obligatorias definidas para la lección. */
-  total: number;
-  /** Cuántas de ellas registró este maestro (al menos un cumplimiento a su nombre). */
-  done: number;
+export interface TeacherDuties {
+  /** El maestro asignado inició y finalizó la clase él mismo. */
+  classDone: boolean;
+  /** El maestro registró la asistencia de todos los estudiantes de la lista de la clase. */
+  attendanceDone: boolean;
 }
 
-const keyFor = (userId: string, week: number) => `cimiento:mandatory:${userId}:${week}`;
+const keyFor = (userId: string, week: number) => `cimiento:teacher-duties:${userId}:${week}`;
 
-export function getMandatoryStats(week: number, userId: string = getCurrentUserId()): MandatoryStats {
-  const s = readJSON<MandatoryStats | null>(keyFor(userId, week), null);
-  return s && Number.isFinite(s.total) && Number.isFinite(s.done) ? { total: s.total, done: Math.min(s.done, s.total) } : { total: 0, done: 0 };
+export function getTeacherDuties(week: number, userId: string = getCurrentUserId()): TeacherDuties {
+  const s = readJSON<Partial<TeacherDuties> | null>(keyFor(userId, week), null);
+  return { classDone: s?.classDone === true, attendanceDone: s?.attendanceDone === true };
 }
 
-export function saveMandatoryStats(week: number, stats: MandatoryStats, userId: string = getCurrentUserId()): void {
-  writeJSON(keyFor(userId, week), { total: Math.max(0, stats.total), done: Math.max(0, Math.min(stats.done, stats.total)) });
+export function saveTeacherDuties(week: number, duties: TeacherDuties, userId: string = getCurrentUserId()): void {
+  writeJSON(keyFor(userId, week), { classDone: duties.classDone === true, attendanceDone: duties.attendanceDone === true });
 }

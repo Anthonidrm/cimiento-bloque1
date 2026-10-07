@@ -40,7 +40,8 @@ export default function Progress() {
         <h1>Mi progreso</h1>
         <p className="page-header__desc">
           Calculado automáticamente para cada semana desarrollada: guía del maestro (45%), examen del
-          maestro (25%), uso de la presentación (15%) y actividades obligatorias (15%). Suman 100%.
+          maestro (25%), uso de la presentación (15%) y actividades obligatorias del maestro (15%: inicio y
+          finalización de clase + pase de lista). Suman 100%.
         </p>
       </header>
 

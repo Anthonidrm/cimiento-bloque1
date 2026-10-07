@@ -3,7 +3,7 @@ import { listTasks, listActivities, listIntegrationActivities, createMandatoryAc
 import { Msg, Loading } from "./ui";
 import { useAsync, useAction, fmtDate } from "./hooks";
 
-/** Actividades obligatorias, actividad de integración y tareas por lección. `canEdit`: Administrador/Pastor definen (el servidor decide quién puede). */
+/** Actividades de la lección, actividad de integración y tareas. (Las actividades obligatorias DEL MAESTRO son inicio/fin de clase y pase de lista.) `canEdit`: Administrador/Pastor definen (el servidor decide quién puede). */
 export function ActivitiesPanel({ canEdit }: { canEdit: boolean }) {
   const mand = useAsync(listActivities, []);
   const integ = useAsync(listIntegrationActivities, []);
@@ -17,7 +17,7 @@ export function ActivitiesPanel({ canEdit }: { canEdit: boolean }) {
     <section className="pn-section">
       <h2>Actividades</h2>
       <Msg msg={act.msg} />
-      <h3>Actividades obligatorias</h3>
+      <h3>Actividades de la lección <small>(no forman parte del 15 % de preparación del maestro)</small></h3>
       {canEdit && (
         <form className="pn-form" onSubmit={(e) => { e.preventDefault(); act.run(async () => { await createMandatoryActivity({ ...m, due_at: m.due_at || undefined }); setM({ ...m, title: "", description: "", instructions: "", materials: "" }); mand.reload(); }, "Actividad creada."); }}>
           <label>Semana<input type="number" min={1} max={52} value={m.week} onChange={(e) => setM({ ...m, week: +e.target.value })} /></label>

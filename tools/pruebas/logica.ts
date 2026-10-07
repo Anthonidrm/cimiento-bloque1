@@ -39,7 +39,7 @@ ok(w.guide === 45 && w.exam === 25 && w.presentation === 15 && w.mandatoryActivi
 ok(w.guide + w.exam + w.presentation + w.mandatoryActivities === 100 && PREPARATION_TOTAL === 100, "Los pesos suman EXACTAMENTE 100");
 ok(P.computePreparation(1, "nadie").components.reduce((a, c) => a + c.weight, 0) === 100, "Los componentes mostrados suman 100 puntos máximos");
 store.clear(); await login("lela");
-ok(P.computePreparation(1).percent === 15, "Sin hacer nada: 15 % (solo las actividades obligatorias, que se otorgan completas si la lección no tiene)");
+ok(P.computePreparation(1).percent === 0, "Sin hacer nada: 0 % (ningún componente se regala)");
 let gp = G.loadProgress(1);
 for (let n = 1; n <= 12; n++) { gp = G.openSection(gp, n, "t"); gp = G.addSeconds(gp, n, 30, "t"); }
 G.saveProgress(gp);
@@ -56,22 +56,21 @@ for (let sl = 1; sl <= 9; sl++) PR.addSlideSeconds(1, sl, PRESENTATION_CONFIG.mi
 ok(P.computePreparation(1).components.find((c) => c.key === "presentation")!.earned === 15, "Las 9 diapositivas: 15 de 15");
 
 
-console.log("3b) Actividades obligatorias: 15 % de la preparación");
+console.log("3b) Actividades obligatorias DEL MAESTRO (15 %): inicio y finalización de clase + pase de lista");
 store.clear(); await login("yely");
 const mand = (wk = 2) => P.computePreparation(wk).components.find((c) => c.key === "mandatoryActivities")!;
-ok(mand().earned === 15 && mand().done && /no tiene actividades/.test(mand().detail), "Lección sin actividades definidas: se otorga completo (15 de 15)");
-MS.saveMandatoryStats(2, { total: 4, done: 0 });
-ok(mand().earned === 0 && !mand().done, "4 actividades y ninguna registrada: 0 de 15");
-MS.saveMandatoryStats(2, { total: 4, done: 1 });
-ok(Math.abs(mand().earned - 3.75) < 1e-9 && mand().detail.startsWith("1 de 4"), "1 de 4 registradas: 3,75 de 15");
-MS.saveMandatoryStats(2, { total: 4, done: 9 });
-ok(mand().earned === 15 && mand().done, "Nunca pasa de 15 aunque el dato sea mayor");
-MS.saveMandatoryStats(2, { total: 4, done: 4 });
-ok(mand().earned === 15 && mand().done, "4 de 4: 15 de 15");
+ok(mand().earned === 0 && !mand().done && /Inicio y finalización de clase: pendiente/.test(mand().detail) && /Pase de lista: pendiente/.test(mand().detail), "Sin clase ni pase de lista: 0 de 15 (no se regala)");
+MS.saveTeacherDuties(2, { classDone: true, attendanceDone: false });
+ok(mand().earned === 7.5 && !mand().done && /clase: hecho/.test(mand().detail), "Solo inicio y finalización de clase: 7,5 de 15");
+MS.saveTeacherDuties(2, { classDone: false, attendanceDone: true });
+ok(mand().earned === 7.5 && /Pase de lista: hecho/.test(mand().detail), "Solo pase de lista: 7,5 de 15");
+MS.saveTeacherDuties(2, { classDone: true, attendanceDone: true });
+ok(mand().earned === 15 && mand().done, "Las dos actividades: 15 de 15");
 store.clear(); await login("mari");
-MS.saveMandatoryStats(3, { total: 2, done: 1 });
+MS.saveTeacherDuties(3, { classDone: true, attendanceDone: true });
 store.clear(); await login("yely");
-ok(MS.getMandatoryStats(3).total === 0, "Las actividades registradas son independientes por maestro");
+ok(!MS.getTeacherDuties(3).classDone && !MS.getTeacherDuties(3).attendanceDone, "Lo hecho por un maestro es independiente de otro");
+ok(P.computePreparation(2).components.find((c) => c.key === "mandatoryActivities")!.weight === 15, "El componente pesa 15");
 
 console.log("3c) Preparación completa = 100 % exacto; cada componente que falta resta su peso");
 const pw = getWeek(1)!;
@@ -79,19 +78,18 @@ const finishExam = () => { for (const q of pw.examQuestions) { if (q.type === "m
 const finishGuide = () => { let g = G.loadProgress(1); for (let n = 1; n <= 23; n++) { g = G.openSection(g, n, "t"); g = G.addSeconds(g, n, 30, "t"); } G.saveProgress(g); };
 const finishPres = () => { for (let sl = 1; sl <= 9; sl++) PR.addSlideSeconds(1, sl, PRESENTATION_CONFIG.minSecondsPerSlide); };
 store.clear(); await login("nuna");
-MS.saveMandatoryStats(1, { total: 2, done: 0 });
-ok(P.computePreparation(1).percent === 0, "Con actividades definidas y nada hecho: 0 %");
+ok(P.computePreparation(1).percent === 0, "Nada hecho: 0 %");
 finishGuide(); ok(P.computePreparation(1).percent === 45, "Solo la guía completa: 45 %");
 finishExam(); ok(P.computePreparation(1).percent === 70, "Guía + examen perfecto: 70 %");
 finishPres(); ok(P.computePreparation(1).percent === 85, "+ presentación: 85 %");
-MS.saveMandatoryStats(1, { total: 2, done: 1 }); ok(P.computePreparation(1).percent === 93, "+ la mitad de las actividades: 92,5 % (se muestra redondeado a 93)");
-MS.saveMandatoryStats(1, { total: 2, done: 2 });
+MS.saveTeacherDuties(1, { classDone: true, attendanceDone: false }); ok(P.computePreparation(1).percent === 93, "+ inicio y finalización de clase: 92,5 % (se muestra redondeado a 93)");
+MS.saveTeacherDuties(1, { classDone: true, attendanceDone: true });
 const full = P.computePreparation(1);
 ok(full.percent === 100 && full.components.reduce((a, c) => a + c.earned, 0) === 100, "Todo completo: EXACTAMENTE 100 %");
 ok(full.components.every((c) => c.done), "Todos los componentes figuran como completos");
 store.clear(); await login("naty");
-finishGuide(); finishExam(); finishPres(); MS.saveMandatoryStats(1, { total: 3, done: 0 });
-ok(P.computePreparation(1).percent === 85, "Sin las actividades obligatorias (existen y no se hicieron): 85 %");
+finishGuide(); finishExam(); finishPres();
+ok(P.computePreparation(1).percent === 85, "Sin las actividades obligatorias del maestro (no dio la clase ni pasó lista): 85 %");
 
 console.log("4) Examen: primera respuesta bloqueada, intentos, relación");
 store.clear(); await login("tefa");

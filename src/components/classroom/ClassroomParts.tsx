@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { listAttendance, markAttendance, logEvent, addNote } from "../../backend/classes";
 import { useClassStudents } from "./classroomHooks";
-import { refreshMandatory } from "../../backend/sync";
+import { refreshDuties } from "../../backend/sync";
 import { listTasks, listSubmissions, createTask, gradeSubmission, setParticipation, listActivities, markActivityDone, listIntegrationActivities, assignIntegration, registerParticipation, signedUrl } from "../../backend/students";
 import type { AttendanceStatus, Profile } from "../../backend/types";
 import { Msg, Loading } from "../panels/ui";
@@ -27,7 +27,7 @@ export function AttendanceList({ sessionId, week, groupId, canEdit }: { sessionI
               <td>{s.display_name}</td>
               <td><div className="pn-inline" role="group" aria-label={`Asistencia de ${s.display_name}`}>{OPTS.map((o) => (
                 <button key={o.s} type="button" className={`pn-btn ${cur.get(s.id) === o.s ? "" : "secondary"}`} disabled={!canEdit || act.busy} aria-pressed={cur.get(s.id) === o.s}
-                  onClick={() => act.run(async () => { await markAttendance(sessionId, s.id, o.s); att.reload(); }, `${s.display_name}: ${o.label.toLowerCase()}.`)}>{o.label}</button>))}</div></td>
+                  onClick={() => act.run(async () => { await markAttendance(sessionId, s.id, o.s); att.reload(); await refreshDuties(week); }, `${s.display_name}: ${o.label.toLowerCase()}.`)}>{o.label}</button>))}</div></td>
               <td><div className="pn-inline"><input type="number" min={0} max={25} aria-label={`Participación de ${s.display_name}`} value={part[s.id] ?? ""} onChange={(e) => setPart({ ...part, [s.id]: +e.target.value })} style={{ width: 70 }} />
                 <button type="button" className="pn-btn secondary" disabled={part[s.id] === undefined || act.busy} onClick={() => act.run(() => setParticipation(s.id, week, part[s.id]), "Participación guardada.")}>Guardar</button></div></td>
             </tr>
@@ -101,7 +101,7 @@ export function TasksReview({ week, students }: { week: number; students: Profil
   );
 }
 
-/** Actividades obligatorias de la lección: el maestro registra el cumplimiento de cada estudiante. */
+/** Actividades de la lección (con evidencia) que el maestro registra por estudiante. NO son las actividades obligatorias del maestro (inicio/fin de clase y pase de lista) ni las de integración. */
 export function MandatoryBlock({ week, students }: { week: number; students: Profile[] }) {
   const q = useAsync(listActivities, []);
   const act = useAction();
@@ -109,11 +109,11 @@ export function MandatoryBlock({ week, students }: { week: number; students: Pro
   const mine = (q.data ?? []).filter((a) => a.week === week);
   return (
     <section className="pn-section">
-      <h2>Actividades obligatorias</h2>
+      <h2>Actividades de la lección</h2>
       <Msg msg={act.msg} />
-      {mine.length === 0 ? <p>Esta lección no tiene actividades obligatorias.</p> : mine.map((a) => (
+      {mine.length === 0 ? <p>Esta lección no tiene actividades de este tipo.</p> : mine.map((a) => (
         <div className="pn-card" key={a.id} style={{ marginBottom: 12 }}><strong>{a.title}</strong> <small>({a.points} puntos)</small><br /><small>{a.instructions}</small>
-          <div className="pn-inline" style={{ marginTop: 8 }}>{students.map((s) => <button key={s.id} type="button" className="pn-btn secondary" disabled={act.busy} onClick={() => act.run(async () => { await markActivityDone(a.id, s.id, a.points); await refreshMandatory(week); }, `${s.display_name}: cumplida.`)}>✔ {s.display_name}</button>)}</div></div>
+          <div className="pn-inline" style={{ marginTop: 8 }}>{students.map((s) => <button key={s.id} type="button" className="pn-btn secondary" disabled={act.busy} onClick={() => act.run(() => markActivityDone(a.id, s.id, a.points), `${s.display_name}: cumplida.`)}>✔ {s.display_name}</button>)}</div></div>
       ))}
     </section>
   );

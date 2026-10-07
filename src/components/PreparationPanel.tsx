@@ -47,8 +47,8 @@ export default function PreparationPanel({ week, refreshKey = 0 }: { week: numbe
       </ul>
       <p className="prep-panel__note">
         Guía 45 % (según apartados completados) · Examen 25 % · Presentación 15 % (según diapositivas
-        realmente proyectadas en la aplicación) · Actividades obligatorias 15 % (según las que registres en clase;
-        si la lección no tiene, se otorga completo). Total: 100 %.
+        realmente proyectadas en la aplicación) · Actividades obligatorias del maestro 15 % (inicio y finalización de clase
+        hechos por ti + pase de lista completo; 7,5 % cada una). Total: 100 %.
       </p>
     </div>
   );

@@ -150,6 +150,13 @@ await step("Pase de lista: Presente → asistencia y 25 puntos automáticos", as
   ok(sql(`select status from attendance where student_id = '${uid(5)}'`) === "PRESENTE", "Asistencia guardada");
   ok(sql(`select attendance_pts from lesson_scores where student_id = '${uid(5)}' and week = 1`) === "25", "La asistencia alimentó la puntuación automáticamente (25)");
 });
+await step("Pase de lista completo: Estudiante 2 ausente (la lista de la clase queda registrada)", async () => {
+  const row2 = byText("td", "Estudiante 2", true)!.closest("tr")!;
+  await click([...row2.querySelectorAll("button")].find((b) => b.textContent === "Ausente"), "botón Ausente");
+  await waitFor(() => text().includes("Estudiante 2: ausente."), "confirmación");
+  ok(sql(`select count(*) from attendance a join class_sessions s on s.id = a.session_id where s.week = 1 and a.recorded_by = '${uid(3)}'`) === "2", "Los 2 estudiantes de la lista quedaron marcados por el maestro");
+  ok(sql(`select attendance_done from teacher_prep('${uid(3)}', 1)`) === "t", "El servidor da el pase de lista por hecho");
+});
 await step("Participación del estudiante (0–25)", async () => {
   await setValue(document.querySelector('input[aria-label="Participación de Estudiante 1"]'), "20");
   const row = byText("td", "Estudiante 1", true)!.closest("tr")!;
@@ -172,6 +179,11 @@ await step("Registro de actividad y observación de la clase", async () => {
 await step("FINALIZAR CLASE: informe completo generado", async () => {
   await click(byText("button", "FINALIZAR CLASE"), "FINALIZAR CLASE"); await waitFor(() => text().includes("Clase finalizada. Informe generado."), "clase finalizada");
   ok(sql(`select status from class_sessions where week = 1`) === "FINALIZADA", "La sesión quedó FINALIZADA");
+  ok(sql(`select started_by || '/' || ended_by from class_sessions where week = 1`) === `${uid(3)}/${uid(3)}`, "El servidor estampó que el maestro inició Y finalizó la clase");
+  ok(sql(`select class_pts || '/' || attendance_pts || '/' || mandatory_pts from teacher_prep('${uid(3)}', 1)`) === "7.5/7.5/15.0", "Actividades obligatorias del maestro: 7,5 + 7,5 = 15");
+  const PPl = await import("../../src/services/preparationService");
+  const mc = PPl.computePreparation(1, uid(3)).components.find((c) => c.key === "mandatoryActivities")!;
+  ok(mc.earned === 15 && mc.done, "La app muestra al maestro 15 de 15 en cuanto finaliza la clase");
   ok(sql(`select count(*) from class_reports r join class_sessions s on s.id = r.session_id where s.week = 1`) === "1", "Se guardó el informe de clase");
   ok(sql(`select content->>'observations' from class_reports limit 1`) === "Clase tranquila y participativa", "El informe incluye las observaciones");
   ok(sql(`select count(*) from notification_deliveries where status = 'ENVIADA' or sent_at is not null`) === "0", "Ningún correo figura como enviado: el envío no se simula");
@@ -210,7 +222,9 @@ await step("Otro estudiante no ve la entrega ni los puntos de est1", async () =>
   await loginAs("est2"); await waitFor(() => text().includes("Área del estudiante"), "área");
   await click(byText("button", "Mis tareas", true)); await waitFor(() => text().includes("Dibuja a tu familia"), "tarea");
   ok(!text().includes("Entregaste"), "No ve la entrega de otro estudiante");
-  await click(byText("button", "Mis resultados", true)); await waitFor(() => text().includes("Todavía no tienes resultados."), "sin resultados propios");
+  await click(byText("button", "Mis resultados", true)); await waitFor(() => all("tbody tr").length > 0 && text().includes("Semana"), "sus resultados");
+  const rows = all("tbody tr").map((r) => [...r.querySelectorAll("td")].map((c) => c.textContent));
+  ok(rows.length === 1 && rows[0][1] === "0" && rows[0][3] === "0", "Solo ve SU fila (ausente = 0 de asistencia), no la de otro estudiante");
 });
 await step("Primer acceso: debe definir su contraseña antes de entrar al área", async () => {
   sql(`update profiles set must_change_password = true where id = '${uid(6)}'`);
@@ -263,18 +277,20 @@ await step("Guía, examen y presentación se envían al servidor con sus reglas,
   ok(near("guide", srv[0]) && near("exam", srv[1]) && near("presentation", srv[2]) && near("mandatoryActivities", srv[3]), `Preparación local = servidor (guía ${srv[0]}, examen ${srv[1]}, presentación ${srv[2]}, actividades ${srv[3]})`);
   ok(local.reduce((a, c) => a + c.weight, 0) === 100, "Los pesos mostrados suman 100");
 
-  // Actividades obligatorias: el servidor dice cuántas hay y cuántas registró el maestro; la app actualiza su porcentaje.
-  sql(`insert into mandatory_activities(id, week, title, created_by) values ('f7000000-0000-0000-0000-000000000001', 1, 'Act A', '${uid(1)}'), ('f7000000-0000-0000-0000-000000000002', 1, 'Act B', '${uid(1)}');`);
-  await S.refreshMandatory(1);
+  // Actividades obligatorias del maestro: inicio/finalización de clase + pase de lista. El servidor las calcula; la app actualiza su porcentaje.
+  await S.refreshDuties(1);
   const MS = await import("../../src/services/mandatoryService");
   const m0 = PP.computePreparation(1, uid(4)).components.find((c) => c.key === "mandatoryActivities")!;
-  ok(JSON.stringify(MS.getMandatoryStats(1, uid(4))) === JSON.stringify({ total: 2, done: 0 }) && m0.earned === 0, "Con 2 actividades definidas y ninguna registrada: 0 de 15");
-  sql(`insert into activity_completions(activity_id, student_id, teacher_id, points) values ('f7000000-0000-0000-0000-000000000001', '${uid(5)}', '${uid(4)}', 0);`);
-  await S.refreshMandatory(1);
+  ok(JSON.stringify(MS.getTeacherDuties(1, uid(4))) === JSON.stringify({ classDone: false, attendanceDone: false }) && m0.earned === 0, "Sin clase ni lista: 0 de 15");
+  sql(`insert into class_sessions(id, week, group_id, teacher_id, started_by, started_at, ended_at, ended_by, status) values ('c8000000-0000-0000-0000-000000000001', 1, 'd0000000-0000-0000-0000-000000000001', '${uid(4)}', '${uid(4)}', now() - interval '1 hour', now(), '${uid(4)}', 'FINALIZADA');`);
+  await S.refreshDuties(1);
   const m1 = PP.computePreparation(1, uid(4)).components.find((c) => c.key === "mandatoryActivities")!;
-  ok(m1.earned === 7.5 && m1.detail.startsWith("1 de 2"), "Al registrar 1 de 2 la app muestra 7,5 de 15");
+  ok(m1.earned === 7.5 && /clase: hecho/.test(m1.detail) && /lista: pendiente/.test(m1.detail), "Inició y finalizó la clase: 7,5 de 15");
+  sql(`insert into attendance(session_id, student_id, status, recorded_by) values ('c8000000-0000-0000-0000-000000000001', '${uid(5)}', 'PRESENTE', '${uid(4)}'), ('c8000000-0000-0000-0000-000000000001', '${uid(6)}', 'EXCUSA', '${uid(4)}');`);
+  await S.refreshDuties(1);
+  const m2 = PP.computePreparation(1, uid(4)).components.find((c) => c.key === "mandatoryActivities")!;
   const srv2 = Number(sql(`select mandatory_pts from teacher_prep('${uid(4)}', 1)`));
-  ok(srv2 === m1.earned, `Coincide con el servidor (${srv2})`);
+  ok(m2.earned === 15 && srv2 === 15, `Con pase de lista completo: 15 de 15 (servidor ${srv2})`);
 });
 
 console.log("8) Recursos reemplazables y almacenamiento privado");

@@ -5,6 +5,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useWeekParam } from "../utils/weekParam";
 import { listLessons } from "../backend/teaching";
 import { startClass, endClass, openSession, listReports, listSessions } from "../backend/classes";
+import { refreshDuties } from "../backend/sync";
 import { listGroups } from "../backend/people";
 import { myPrep } from "../backend/prep";
 import { PhotosPanel } from "../components/panels/ExtrasPanels";
@@ -62,14 +63,14 @@ export default function ClassRoom() {
             <div className="pn-cards">
               <div className="pn-card"><small>Guía del Maestro</small><div className="big">{p.guide_done}/23</div><small>apartados completados</small></div>
               <div className="pn-card"><small>Examen</small><div className="big">{p.exam_completed ? "Hecho" : "Pendiente"}</div></div>
-              <div className="pn-card"><small>Actividades obligatorias</small><div className="big">{p.mandatory_total === 0 ? "—" : `${p.mandatory_done}/${p.mandatory_total}`}</div><small>{p.mandatory_total === 0 ? "la lección no tiene" : "registradas en clase"}</small></div>
+              <div className="pn-card"><small>Actividades obligatorias del maestro</small><div className="big">{p.mandatory_done}/{p.mandatory_total}</div><small>Inicio y finalización de clase: {p.class_done ? "hecho" : "pendiente"} · Pase de lista: {p.attendance_done ? "hecho" : "pendiente"}</small></div>
               <div className="pn-card"><small>Preparación</small><div className="big">{Math.round(p.total_pts)} %</div></div>
             </div>
           )}
           {canRun && lesson?.teacher_id && (
             <div className="pn-inline">
               <label>Grupo <select value={group} onChange={(e) => setGroup(e.target.value)}><option value="">Todos mis estudiantes</option>{(groups.data ?? []).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
-              <button type="button" className="pn-btn" disabled={act.busy} onClick={() => act.run(async () => { await startClass(week, group || undefined); open.reload(); }, "Clase iniciada.")}>▶ INICIAR CLASE</button>
+              <button type="button" className="pn-btn" disabled={act.busy} onClick={() => act.run(async () => { await startClass(week, group || undefined); await refreshDuties(week); open.reload(); prep.reload(); }, "Clase iniciada.")}>▶ INICIAR CLASE</button>
             </div>
           )}
           {!lesson?.teacher_id && <p>Esta lección todavía no tiene maestro asignado.</p>}
@@ -86,7 +87,7 @@ export default function ClassRoom() {
             <div className="pn-timer" role="timer" aria-label="Tiempo de clase">{clock(elapsed)}</div>
             <div className="pn-inline" style={{ marginTop: 10 }}>
               <Link className="pn-btn secondary" to={`/plan-anual/semana-${week}/presentacion?sesion=${s.id}`} style={{ textDecoration: "none" }}>Proyectar presentación (se registra en la clase)</Link>
-              {canRun && <button type="button" className="pn-btn danger" disabled={act.busy} onClick={() => { if (confirm("¿Finalizar la clase? Se generará el informe.")) act.run(async () => { await endClass(s.id); open.reload(); reports.reload(); sessions.reload(); }, "Clase finalizada. Informe generado."); }}>■ FINALIZAR CLASE</button>}
+              {canRun && <button type="button" className="pn-btn danger" disabled={act.busy} onClick={() => { if (confirm("¿Finalizar la clase? Se generará el informe.")) act.run(async () => { await endClass(s.id); await refreshDuties(week); open.reload(); reports.reload(); sessions.reload(); prep.reload(); }, "Clase finalizada. Informe generado."); }}>■ FINALIZAR CLASE</button>}
             </div>
           </section>
           <AttendanceList sessionId={s.id} week={week} groupId={s.group_id} canEdit={canRun} />

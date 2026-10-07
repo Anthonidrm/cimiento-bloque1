@@ -1,10 +1,10 @@
 // Porcentaje de preparación del maestro por lección.
-// Pesos en src/config/preparationConfig.ts: guía 45 % · examen 25 % · presentación 15 % · actividades obligatorias 15 %
-// (suman exactamente 100).
+// Pesos en src/config/preparationConfig.ts: guía 45 % · examen 25 % · presentación 15 % · actividades obligatorias del maestro 15 %
+// (inicio y finalización de clase + pase de lista). Suman exactamente 100.
 import { getWeek } from "../data/weeks";
 import { getCurrentUserId } from "../auth/session";
-import { resolveWeights } from "../config/preparationConfig";
-import { getMandatoryStats } from "./mandatoryService";
+import { resolveWeights, MANDATORY_SPLIT } from "../config/preparationConfig";
+import { getTeacherDuties } from "./mandatoryService";
 import { getPresentationUsage } from "./presentationService";
 import { GUIDE_SECTION_COUNT } from "../data/guideSections";
 import { completedCount, loadProgress } from "./guidePrepService";
@@ -32,7 +32,7 @@ export function computePreparation(week: number, userId: string = getCurrentUser
   const examDone = isExamComplete(week, totalQ);
   const score = examDone ? getExamScore(week, totalQ) : 0;
   const pres = getPresentationUsage(week, userId);
-  const mand = getMandatoryStats(week, userId);
+  const duties = getTeacherDuties(week, userId);
 
   const components: PreparationComponent[] = [
     {
@@ -61,12 +61,13 @@ export function computePreparation(week: number, userId: string = getCurrentUser
     },
     {
       key: "mandatoryActivities",
-      label: "Actividades obligatorias",
+      label: "Actividades obligatorias del maestro",
       weight: w.mandatoryActivities,
-      // Sin actividades definidas en la lección no hay nada que exigir: se otorga completo.
-      earned: mand.total === 0 ? w.mandatoryActivities : (mand.done / mand.total) * w.mandatoryActivities,
-      done: mand.total === 0 || mand.done === mand.total,
-      detail: mand.total === 0 ? "Esta lección no tiene actividades obligatorias" : `${mand.done} de ${mand.total} actividades registradas en clase`,
+      earned:
+        (duties.classDone ? (w.mandatoryActivities * MANDATORY_SPLIT.class) / 100 : 0) +
+        (duties.attendanceDone ? (w.mandatoryActivities * MANDATORY_SPLIT.attendance) / 100 : 0),
+      done: duties.classDone && duties.attendanceDone,
+      detail: `Inicio y finalización de clase: ${duties.classDone ? "hecho" : "pendiente"} · Pase de lista: ${duties.attendanceDone ? "hecho" : "pendiente"}`,
     },
   ];
 

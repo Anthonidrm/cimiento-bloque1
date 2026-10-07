@@ -26,7 +26,7 @@
 | AJ | Actividades de integración del Módulo 1 | ◐ documentadas abajo; falta definirlas y cargarlas (no se inventan) |
 | —  | Semanas 5–52 | ⛔ esperan la fuente oficial de temas |
 | —  | Claves del examen en el JavaScript público | ⛔ requiere mover el contenido a la base de datos |
-| —  | Actividades obligatorias en el % de preparación del maestro | ✅ 15 % (guía 45 · examen 25 · presentación 15 · actividades 15 = 100). ◐ Confirmar: si la lección no tiene actividades se otorga completo |
+| —  | Actividades obligatorias DEL MAESTRO (15 % de su preparación) | ✅ **Inicio y finalización de clase** + **Pase de lista** (7,5 + 7,5). ◐ Criterios a confirmar: el crédito de clase exige que el maestro inicie Y finalice él mismo; el pase de lista exige marcar a TODOS los de la lista |
 
 
 
@@ -130,7 +130,7 @@ Versículo: **Salmo 8:5** — "Le has hecho poco menor que los ángeles, y lo co
 
 ## C. Decisiones abiertas
 
-- **Reparto del porcentaje de preparación del maestro.** Definido: guía 45 %, examen 25 %, presentación 15 %, actividades obligatorias 15 % (suman 100).
+- **Reparto del porcentaje de preparación del maestro.** Definido: guía 45 %, examen 25 %, presentación 15 %, actividades obligatorias del maestro 15 % (inicio y finalización de clase + pase de lista); suman 100. Las **actividades de integración** (estudiantes, semanas 1–4) son un módulo aparte y no cuentan aquí.
   El resto (preparación y actividades obligatorias) está configurable en `src/config/preparationConfig.ts`
   y hoy lo recibe provisionalmente la lectura de la guía. Falta definir cómo se reparte.
 - **Autenticación real.** El login actual es de interfaz (ver README). Requiere backend (Supabase) para

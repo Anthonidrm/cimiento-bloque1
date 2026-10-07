@@ -11,7 +11,7 @@ export function TeacherProgressTable({ title = "Progreso de maestros" }: { title
   return (
     <section className="pn-section">
       <h2>{title}</h2>
-      <p>Preparación calculada por el servidor: guía 45 % · examen 25 % · presentación 15 % · actividades obligatorias 15 % (suman 100 %).</p>
+      <p>Preparación calculada por el servidor: guía 45 % · examen 25 % · presentación 15 % · actividades obligatorias del maestro 15 % = inicio y finalización de clase + pase de lista (suman 100 %).</p>
       <div className="pn-table-wrap">
         <table className="pn-table">
           <thead><tr><th>Maestro</th><th>Semana</th><th>Guía (45)</th><th>Examen (25)</th><th>Presentación (15)</th><th>Actividades (15)</th><th>Total</th><th>Asignación</th><th>Última actividad</th></tr></thead>
@@ -23,7 +23,7 @@ export function TeacherProgressTable({ title = "Progreso de maestros" }: { title
                 <td>{r.guide_pts} <small>({r.guide_done}/23 apartados)</small></td>
                 <td>{r.exam_completed ? r.exam_pts : <span className="pn-chip">Sin hacer</span>}</td>
                 <td>{r.presentation_pts}</td>
-                <td>{r.mandatory_pts} <small>({r.mandatory_done}/{r.mandatory_total})</small></td>
+                <td>{r.mandatory_pts} <small>(clase {r.class_done ? "✓" : "—"} · lista {r.attendance_done ? "✓" : "—"})</small></td>
                 <td><strong>{Math.round(r.total_pts)} %</strong></td>
                 <td>{r.assignment_status ? <span className={`pn-chip ${CHIP[r.assignment_status] ?? ""}`}>{r.assignment_status.replace(/_/g, " ").toLowerCase()}{r.days_late ? ` · ${r.days_late} día(s)` : ""}</span> : "—"}</td>
                 <td>{fmtDate(r.last_activity)}</td>

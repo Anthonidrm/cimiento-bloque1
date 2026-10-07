@@ -3,7 +3,9 @@
 --   Guía 45 % · Examen 25 % · Presentación 15 % · Actividades obligatorias 15 %  (suman EXACTAMENTE 100 %).
 -- Antes: 50 / 30 / 20 / 0. Las actividades obligatorias dejan de pesar 0 y contribuyen al porcentaje final.
 --
--- Actividades obligatorias del maestro en una lección:
+-- ⚠ SUPERADO por la migración 0007 en esta parte: las actividades obligatorias DEL MAESTRO son inicio y finalización de clase + pase
+-- de lista (no las "actividades de la lección"). Esta migración conserva los pesos 45/25/15/15 y la regla de que sumen 100.
+-- (Texto histórico:) Actividades obligatorias del maestro en una lección:
 --   puntos = (actividades de la lección que el maestro registró en clase / actividades obligatorias de la lección) × 15
 --   · "registró" = tiene al menos un cumplimiento (activity_completions) a su nombre para esa actividad.
 --   · Si la lección NO tiene actividades obligatorias definidas, no hay nada que exigir: el componente se otorga completo (15).
