@@ -1,0 +1,52 @@
+name: Cargar recursos de CIMIENTO a Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      admin_uuid:
+        description: "UUID del administrador en el proyecto Supabase Cimiento-Nuevo"
+        required: true
+        type: string
+      confirmar_carga:
+        description: "Confirmo que esta es la primera carga y que no debo repetirla"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  upload-resources:
+    if: ${{ inputs.confirmar_carga == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: feature/sistema-integral-final
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobar recursos detectados
+        run: npx tsx --tsconfig tsconfig.app.json tools/backend/subir_recursos.ts --simular
+
+      - name: Cargar archivos al almacenamiento privado
+        env:
+          SUPABASE_URL: ${{ secrets.CIMIENTO_NUEVO_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CIMIENTO_NUEVO_SERVICE_ROLE_KEY }}
+          ADMIN_ID: ${{ inputs.admin_uuid }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Faltan los secretos CIMIENTO_NUEVO_SUPABASE_URL o CIMIENTO_NUEVO_SERVICE_ROLE_KEY en GitHub Actions."
+            exit 1
+          fi
+          npx tsx --tsconfig tsconfig.app.json tools/backend/subir_recursos.ts --subido-por "$ADMIN_ID"
