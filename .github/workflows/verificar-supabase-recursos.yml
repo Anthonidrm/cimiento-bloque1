@@ -28,4 +28,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.CIMIENTO_NUEVO_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CIMIENTO_NUEVO_SERVICE_ROLE_KEY }}
           ADMIN_ID: ${{ inputs.admin_uuid }}
-        run: npx tsx --tsconfig tsconfig.app.json tools/backend/verificar_supabase_recursos.ts
+        run: |
+          # Accept either the project root URL or the REST endpoint URL stored in GitHub.
+          export SUPABASE_URL="${SUPABASE_URL%/rest/v1/}"
+          export SUPABASE_URL="${SUPABASE_URL%/rest/v1}"
+          if [[ ! "$SUPABASE_URL" =~ ^https://[a-zA-Z0-9-]+\.supabase\.co$ ]]; then
+            echo "::error::La URL de Supabase no tiene el formato esperado. Debe ser la URL base del proyecto."
+            exit 1
+          fi
+          npx tsx --tsconfig tsconfig.app.json tools/backend/verificar_supabase_recursos.ts
