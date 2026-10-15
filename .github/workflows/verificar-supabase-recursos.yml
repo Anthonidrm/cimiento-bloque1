@@ -1,0 +1,15 @@
+name: Verificar Supabase antes de cargar recursos
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar configuración de verificación
+        run: |
+          echo "Este flujo todavía no consulta ni modifica Supabase."
+          echo "No ejecutar carga real hasta completar la validación de esquema."
