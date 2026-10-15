@@ -1,0 +1,27 @@
+name: Simular carga de recursos CIMIENTO
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Descargar rama de trabajo
+        uses: actions/checkout@v4
+        with:
+          ref: feature/sistema-integral-final
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Simular detección de recursos (no modifica Supabase)
+        run: npx tsx --tsconfig tsconfig.app.json tools/backend/subir_recursos.ts --simular
