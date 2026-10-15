@@ -21,9 +21,21 @@ type AdminAction =
   | { action: "remove_access"; id: string };
 
 async function admin(body: AdminAction) {
-  const { data, error } = await getClient().functions.invoke("admin-users", { body });
+  const client = getClient();
+
+  // Enviar explícitamente el token de Supabase Auth evita llamar a la función sin sesión.
+  const { data: sessionData, error: sessionError } = await client.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (sessionError || !accessToken) {
+    throw new Error("No hay una sesión activa de Supabase. Cierra sesión y vuelve a entrar para renovar el acceso.");
+  }
+
+  const { data, error } = await client.functions.invoke("admin-users", {
+    body,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   if (error) {
-    // supabase-js oculta el motivo real tras "non-2xx"; la función lo devuelve en el cuerpo ({ error: "..." }).
+    // supabase-js oculta el motivo real tras "non-2xx"; la función lo devuelve en el cuerpo ({ error: "..."}).
     let msg = error.message;
     const ctx = (error as { context?: Response }).context;
     if (ctx && typeof ctx.json === "function") {
