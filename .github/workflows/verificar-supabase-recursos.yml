@@ -1,15 +1,31 @@
 name: Verificar Supabase antes de cargar recursos
 on:
   workflow_dispatch:
-
+    inputs:
+      admin_uuid:
+        description: "UUID del administrador en Cimiento-Nuevo"
+        required: true
+        type: string
 permissions:
   contents: read
-
 jobs:
-  check:
+  preflight:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Mostrar configuración de verificación
-        run: |
-          echo "Este flujo todavía no consulta ni modifica Supabase."
-          echo "No ejecutar carga real hasta completar la validación de esquema."
+      - name: Descargar rama de trabajo
+        uses: actions/checkout@v4
+        with:
+          ref: feature/sistema-integral-final
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Instalar dependencias
+        run: npm install
+      - name: Verificar Supabase sin modificar recursos
+        env:
+          SUPABASE_URL: ${{ secrets.CIMIENTO_NUEVO_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CIMIENTO_NUEVO_SERVICE_ROLE_KEY }}
+          ADMIN_ID: ${{ inputs.admin_uuid }}
+        run: npx tsx --tsconfig tsconfig.app.json tools/backend/verificar_supabase_recursos.ts
